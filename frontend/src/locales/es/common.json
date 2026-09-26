@@ -192,6 +192,7 @@
     "col_telefono": "Teléfono",
     "col_ruta": "Ruta",
     "sin_ruta": "Sin ruta",
+    "error_reasignar_ruta": "No se pudo asignar la ruta",
     "col_estado": "Estado",
     "sin_resultados": "No se encontraron clientes",
     "minimo3": "Mínimo 3 caracteres",

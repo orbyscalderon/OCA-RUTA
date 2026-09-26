@@ -118,7 +118,7 @@ export class ClientesService {
   }
 
   async obtener(tenantId: string, id: string): Promise<Cliente> {
-    const c = await this.repo.findOne({ where: { id, tenant_id: tenantId } });
+    const c = await this.repo.findOne({ where: { id, tenant_id: tenantId }, relations: ['ruta'] });
     if (!c) throw new NotFoundException(msg('clientes_no_encontrado'));
     return c;
   }

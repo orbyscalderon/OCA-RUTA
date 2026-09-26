@@ -5,11 +5,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CreditCard, ScanLine, Upload, X as XIcon, CheckCircle2, FileDown } from 'lucide-react';
 import { clientesApi } from '@/api/clientes.api';
 import { prestamosApi } from '@/api/prestamos.api';
+import { rutasApi } from '@/api/rutas.api';
 import { Table } from '@/components/common/Table';
 import { Badge, estadoPrestamoVariant } from '@/components/common/Badge';
 import { generarEstadoCuentaPDF } from '@/utils/estado-cuenta.pdf';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/utils/format';
+import { mensajeError } from '@/utils/errores';
 import type { Prestamo } from '@/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -27,11 +29,29 @@ export function ClienteDetallePage() {
   const [uploadOk, setUploadOk] = useState(false);
   const frontalRef = useRef<HTMLInputElement>(null);
   const traseraRef = useRef<HTMLInputElement>(null);
+  const [editandoRuta, setEditandoRuta] = useState(false);
+  const [rutaSeleccionada, setRutaSeleccionada] = useState('');
+
+  const puedeEditarRuta = user?.permisos?.includes('clientes_editar') ?? false;
 
   const { data: cliente } = useQuery({
     queryKey: ['cliente', id],
     queryFn: () => clientesApi.obtener(id!),
     enabled: !!id,
+  });
+
+  const { data: rutas } = useQuery({
+    queryKey: ['rutas'],
+    queryFn: () => rutasApi.listar(),
+    enabled: puedeEditarRuta,
+  });
+
+  const reasignarRutaMut = useMutation({
+    mutationFn: (rutaId: string) => clientesApi.reasignarRuta(id!, rutaId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['cliente', id] });
+      setEditandoRuta(false);
+    },
   });
 
   const { data: prestamos, isLoading } = useQuery({
@@ -84,6 +104,56 @@ export function ClienteDetallePage() {
                 <span className={cliente.activo ? 'text-emerald-600' : 'text-red-500'}>
                   {cliente.activo ? t('common.activo') : t('common.inactivo')}
                 </span>
+              </div>
+              <div>
+                <span className="font-medium">{t('clientes.col_ruta')}:</span>{' '}
+                {editandoRuta ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <select
+                      value={rutaSeleccionada}
+                      onChange={(e) => setRutaSeleccionada(e.target.value)}
+                      className="input-field py-1 text-xs w-auto inline-block"
+                      autoFocus
+                    >
+                      <option value="">{t('clientes.sin_ruta')}</option>
+                      {(rutas ?? []).map((r) => (
+                        <option key={r.id} value={r.id}>{r.nombre}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => reasignarRutaMut.mutate(rutaSeleccionada)}
+                      disabled={!rutaSeleccionada || reasignarRutaMut.isPending}
+                      className="text-brand-600 hover:underline text-xs font-medium disabled:opacity-40"
+                    >
+                      {t('common.guardar')}
+                    </button>
+                    <button
+                      onClick={() => setEditandoRuta(false)}
+                      className="text-gray-400 hover:text-gray-600 text-xs"
+                    >
+                      {t('common.cancelar')}
+                    </button>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2">
+                    {cliente.ruta?.nombre
+                      ? <span>{cliente.ruta.nombre}</span>
+                      : <span className="text-amber-600 font-medium">{t('clientes.sin_ruta')}</span>}
+                    {puedeEditarRuta && (
+                      <button
+                        onClick={() => { setRutaSeleccionada(cliente.ruta_id ?? ''); setEditandoRuta(true); }}
+                        className="text-brand-600 hover:underline text-xs font-medium"
+                      >
+                        {t('clientes.reemplazar')}
+                      </button>
+                    )}
+                  </span>
+                )}
+                {reasignarRutaMut.isError && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {mensajeError(reasignarRutaMut.error, t('clientes.error_reasignar_ruta'))}
+                  </p>
+                )}
               </div>
             </div>
           </div>
