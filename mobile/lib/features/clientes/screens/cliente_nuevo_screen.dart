@@ -62,8 +62,14 @@ class _ClienteNuevoScreenState extends ConsumerState<ClienteNuevoScreen> {
   }
 
   Future<void> _cargarRutas() async {
+    // /rutas exige rutas_gestionar (admin/supervisor, ve todas). Un
+    // cobrador normal no tiene ese permiso -- para él hay que pedir
+    // /rutas/mis-rutas (rutas_ver_propia), si no el selector queda vacío
+    // y no puede asignar la ruta al crear un cliente nuevo.
+    final auth = ref.read(authStateProvider);
+    final endpoint = auth.tienePermiso('rutas_gestionar') ? '/rutas' : '/rutas/mis-rutas';
     try {
-      final resp = await ApiClient.instance.dio.get('/rutas');
+      final resp = await ApiClient.instance.dio.get(endpoint);
       if (!mounted) return;
       setState(() => _rutas = (resp.data as List).cast<Map<String, dynamic>>());
     } catch (_) {}
