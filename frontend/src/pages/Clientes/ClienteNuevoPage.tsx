@@ -80,9 +80,13 @@ export function ClienteNuevoPage() {
     );
   };
 
+  // /rutas exige rutas_gestionar (admin/supervisor, ve todas) -- un
+  // cobrador normal no lo tiene, y sin esto el selector de ruta le queda
+  // vacío y no puede asignar la ruta al crear un cliente nuevo.
+  const veTodasLasRutas = user?.permisos?.includes('rutas_gestionar') ?? false;
   const { data: rutas = [] } = useQuery({
-    queryKey: ['rutas'],
-    queryFn: () => rutasApi.listar(),
+    queryKey: ['rutas', veTodasLasRutas],
+    queryFn: () => (veTodasLasRutas ? rutasApi.listar() : rutasApi.misRutas()),
   });
 
   const {

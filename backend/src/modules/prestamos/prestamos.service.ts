@@ -343,6 +343,12 @@ export class PrestamosService {
         saldo_liquidado_renovacion: saldoTotalDeuda,
       });
 
+      // La renovación absorbe toda la deuda vieja (cuotas y mora quedan
+      // Pagadas arriba) -- si el préstamo viejo tenía reporte(s) de mora en
+      // el buró, se saldan solos, igual que con un pago normal que termina
+      // de saldar el préstamo.
+      await this.buroCreditoService.saldarReportesDePrestamo(tenantId, prestamoViejo.id);
+
       // 4. Generar el nuevo préstamo
       const hoy = hoyRenovacion;
       const fechaInicio = new Date(dto.fecha_primer_pago);

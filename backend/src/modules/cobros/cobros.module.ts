@@ -7,6 +7,7 @@ import { Caja } from '../cajas/entities/caja.entity';
 import { CuotaAmortizacion } from '../prestamos/entities/cuota-amortizacion.entity';
 import { Prestamo } from '../prestamos/entities/prestamo.entity';
 import { CargoMora } from '../mora/entities/cargo-mora.entity';
+import { BuroCreditoModule } from '../buro-credito/buro-credito.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CargoMora } from '../mora/entities/cargo-mora.entity';
       Prestamo,
       CargoMora,
     ]),
+    BuroCreditoModule,
   ],
   controllers: [CobrosController],
   providers: [CobrosService],

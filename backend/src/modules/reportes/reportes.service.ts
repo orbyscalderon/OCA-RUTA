@@ -47,10 +47,16 @@ export class ReportesService {
           AND (t.created_at AT TIME ZONE $3)::date = $2::date
       `, [tenantId, hoy, tz]),
 
-      // Estado de cajas hoy
+      // Estado de cajas hoy -- "cajas_abiertas" se cuenta SIN filtrar por
+      // fecha: una caja no se cierra hasta que el cobrador cuadra, así que
+      // puede seguir abierta días después de haberse abierto (ver mismo
+      // ajuste en CajasService.listarCajasDia). El resto de las métricas
+      // (cerradas, cobrado, gastos, diferencias) sí es sobre las cajas de
+      // hoy -- mezclarlas duplicaría el total acumulado de una caja vieja
+      // que sigue abierta.
       this.em.query<any[]>(`
         SELECT
-          COUNT(*) FILTER (WHERE estado = 'Abierta')  AS cajas_abiertas,
+          (SELECT COUNT(*) FROM cajas WHERE tenant_id = $1 AND estado = 'Abierta') AS cajas_abiertas,
           COUNT(*) FILTER (WHERE estado = 'Cerrada')  AS cajas_cerradas,
           SUM(total_cobros)                           AS total_cobrado,
           SUM(total_gastos)                           AS total_gastos,

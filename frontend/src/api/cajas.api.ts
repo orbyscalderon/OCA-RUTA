@@ -27,4 +27,9 @@ export const cajasApi = {
 
   movimientos: (id: string) =>
     api.get<MovimientoCaja[]>(`/cajas/${id}/movimientos`).then((r) => r.data),
+
+  // Solo si la caja sigue Abierta y no tiene cobros/gastos -- para deshacer
+  // una apertura por error (cobrador/ruta equivocados, prueba).
+  eliminar: (id: string) =>
+    api.delete(`/cajas/${id}`).then((r) => r.data),
 };

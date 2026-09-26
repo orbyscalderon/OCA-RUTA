@@ -311,6 +311,33 @@ export class CajasService {
   }
 
   /**
+   * Borra una caja abierta por error (cobrador/ruta equivocados, prueba,
+   * etc). Solo si sigue Abierta y no tiene NINGÚN cobro/gasto registrado
+   * -- si ya tiene movimientos reales, hay que cerrarla normal, nunca
+   * borrar historial financiero. transacciones.caja_id es ON DELETE
+   * RESTRICT, así que hay que borrar primero su transacción de apertura
+   * (la única que puede tener si total_cobros/total_gastos siguen en 0).
+   */
+  async eliminar(tenantId: string, cajaId: string): Promise<void> {
+    return this.em.transaction(async (tx) => {
+      const caja = await tx.findOne(Caja, { where: { id: cajaId, tenant_id: tenantId } });
+      if (!caja) throw new NotFoundException(msg('cajas_no_encontrada'));
+
+      if (caja.estado !== EstadoCaja.ABIERTA) {
+        throw new BadRequestException(msg('cajas_eliminar_solo_abierta'));
+      }
+      if (Number(caja.total_cobros) !== 0 || Number(caja.total_gastos) !== 0) {
+        throw new BadRequestException(msg('cajas_eliminar_con_movimientos'));
+      }
+
+      await tx.delete(Transaccion, { caja_id: cajaId, tenant_id: tenantId });
+      await tx.delete(Caja, { id: cajaId, tenant_id: tenantId });
+
+      this.logger.log(`Caja eliminada: id=${cajaId} tenant=${tenantId}`);
+    });
+  }
+
+  /**
    * Movimientos (cobros + gastos) de una caja, orden cronológico. Mismo
    * patrón de propiedad que registrarCobro/registrarGasto: un cobrador solo
    * ve su propia caja, admin/supervisor pueden ver la de cualquiera.

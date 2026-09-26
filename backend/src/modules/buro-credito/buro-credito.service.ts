@@ -427,6 +427,35 @@ export class BuroCreditoService {
     return this.buroRepo.save(reporte);
   }
 
+  /**
+   * Llamado internamente cuando un préstamo queda PAGADO (última cuota
+   * cobrada). Si ese préstamo tenía reporte(s) de mora en el buró (porque
+   * se marcó Vencido antes de terminarse de pagar), los marca como saldados
+   * automáticamente -- el cliente no debería seguir apareciendo como
+   * moroso en el buró solo porque nadie entró a marcarlo a mano. No
+   * propaga errores: si falla, el cobro ya se registró y no debe revertirse.
+   */
+  async saldarReportesDePrestamo(tenantId: string, prestamoId: string): Promise<void> {
+    try {
+      const hoy = fechaHoyEnZona(await this.zonaHorariaService.obtener(tenantId));
+      await this.buroRepo
+        .createQueryBuilder()
+        .update(HistorialCredito)
+        .set({
+          deuda_saldada: true,
+          fecha_saldo_deuda: hoy,
+          nivel_riesgo: () =>
+            `CASE nivel_riesgo WHEN 'Alto' THEN 'Medio' WHEN 'Medio' THEN 'Bajo' ELSE nivel_riesgo END`,
+        })
+        .where('prestamo_id = :prestamoId', { prestamoId })
+        .andWhere('tenant_id = :tenantId', { tenantId })
+        .andWhere('deuda_saldada = FALSE')
+        .execute();
+    } catch (err) {
+      this.logger.error(`Error saldando reportes de buró para préstamo ${prestamoId}: ${(err as Error).message}`);
+    }
+  }
+
   // ─── INACTIVAR REPORTE (solo super_admin) ─────────────────────────────────
 
   async inactivarReporte(

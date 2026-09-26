@@ -1,5 +1,5 @@
 import {
-  Body, Controller, Get, HttpCode, HttpStatus,
+  Body, Controller, Delete, Get, HttpCode, HttpStatus,
   Param, ParseUUIDPipe, Post, Query, UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -69,6 +69,17 @@ export class CajasController {
   @ApiQuery({ name: 'fecha', required: false, description: 'YYYY-MM-DD (defecto: hoy)' })
   dia(@CurrentUser() user: JwtPayload, @Query('fecha') fecha?: string) {
     return this.service.listarCajasDia(user.tenantId, fecha);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @RequierePermiso(Permiso.CAJAS_SUPERVISAR)
+  @ApiOperation({
+    summary: 'Elimina una caja abierta por error',
+    description: 'Solo si sigue Abierta y no tiene ningún cobro/gasto registrado -- con movimientos reales hay que cerrarla, no borrarla.',
+  })
+  eliminar(@CurrentUser() user: JwtPayload, @Param('id', ParseUUIDPipe) id: string) {
+    return this.service.eliminar(user.tenantId, id);
   }
 
   @Get(':id/arqueo')

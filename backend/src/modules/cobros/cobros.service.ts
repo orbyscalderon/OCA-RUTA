@@ -25,6 +25,7 @@ import { ZonaHorariaService } from '../../common/services/zona-horaria.service';
 import { haversineKm } from '../../common/utils/geo.util';
 import { StorageService } from '../../common/services/storage.service';
 import { msg } from '../../common/i18n/messages';
+import { BuroCreditoService } from '../buro-credito/buro-credito.service';
 
 // ─── Tipos internos ───────────────────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ export class CobrosService {
     @InjectEntityManager() private readonly em: EntityManager,
     private readonly zonaHorariaService: ZonaHorariaService,
     private readonly storageService: StorageService,
+    private readonly buroCreditoService: BuroCreditoService,
   ) {}
 
   /**
@@ -265,6 +267,11 @@ export class CobrosService {
           estado: EstadoPrestamo.PAGADO,
         });
         this.logger.log(`Préstamo ${prestamo.id} marcado como PAGADO`);
+        // Si este préstamo tenía reporte(s) de mora en el buró, se saldan
+        // solos -- el cliente no debe seguir viéndose como moroso ahí solo
+        // porque nadie entró a marcarlo a mano. No propaga errores (mismo
+        // patrón que reportarAutomatico), así que nunca revierte el cobro.
+        await this.buroCreditoService.saldarReportesDePrestamo(tenantId, prestamo.id);
       }
 
       // ── 9. CREAR REGISTRO DE TRANSACCIÓN ────────────────────────────────

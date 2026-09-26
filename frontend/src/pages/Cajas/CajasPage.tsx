@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Eye, PlusCircle, AlertCircle, X, PiggyBank } from 'lucide-react';
+import { Eye, PlusCircle, AlertCircle, X, PiggyBank, Trash2 } from 'lucide-react';
 import { cajasApi } from '@/api/cajas.api';
 import { rutasApi } from '@/api/rutas.api';
 import { empleadosApi } from '@/api/empleados.api';
@@ -25,6 +25,7 @@ export function CajasPage() {
   const [rutaSeleccionada, setRutaSeleccionada] = useState('');
   const [montoApertura, setMontoApertura] = useState('0');
   const [fechaFiltro, setFechaFiltro] = useState(() => new Date().toISOString().slice(0, 10));
+  const [cajaAEliminar, setCajaAEliminar] = useState<Caja | null>(null);
 
   const puedeAsignarCajas = user?.permisos?.includes('cajas_supervisar') ?? false;
 
@@ -79,6 +80,17 @@ export function CajasPage() {
 
   const errorMsg = abrirMut.isError
     ? mensajeError(abrirMut.error, t('cajas.error_abrir'))
+    : null;
+
+  const eliminarMut = useMutation({
+    mutationFn: (id: string) => cajasApi.eliminar(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['cajas-hoy'] });
+      setCajaAEliminar(null);
+    },
+  });
+  const eliminarErrorMsg = eliminarMut.isError
+    ? mensajeError(eliminarMut.error, t('cajas.error_eliminar'))
     : null;
 
   const fmt = (n: number) => formatCurrency(n, user);
@@ -183,10 +195,22 @@ export function CajasPage() {
             key: 'ver',
             header: '',
             render: (r) => (
-              <Link to={`/cajas/${r.id}/arqueo`} className="flex items-center gap-1 text-xs text-brand-600 hover:underline">
-                <Eye size={13} />
-                {t('cajas.arqueo')}
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link to={`/cajas/${r.id}/arqueo`} className="flex items-center gap-1 text-xs text-brand-600 hover:underline">
+                  <Eye size={13} />
+                  {t('cajas.arqueo')}
+                </Link>
+                {puedeAsignarCajas && r.estado === 'Abierta' && r.total_cobros === 0 && r.total_gastos === 0 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setCajaAEliminar(r); }}
+                    className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 hover:underline"
+                    title={t('cajas.eliminar_hint')}
+                  >
+                    <Trash2 size={13} />
+                    {t('common.eliminar')}
+                  </button>
+                )}
+              </div>
             ),
           },
         ]}
@@ -293,6 +317,36 @@ export function CajasPage() {
               </button>
               <button
                 onClick={() => { setShowModal(false); setCobradorSeleccionado(''); setRutaSeleccionada(''); }}
+                className="btn-secondary"
+              >
+                {t('common.cancelar')}
+              </button>
+            </div>
+          </div>
+        </ModalOverlay>
+      )}
+
+      {/* Modal: eliminar caja */}
+      {cajaAEliminar && (
+        <ModalOverlay>
+          <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl p-6 space-y-4 animate-fade-in">
+            <h2 className="text-lg font-bold text-gray-900">{t('common.eliminar')}</h2>
+            <p className="text-sm text-gray-600">{t('cajas.eliminar_confirmar')}</p>
+            {eliminarErrorMsg && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2">
+                <p className="text-xs text-red-700">{eliminarErrorMsg}</p>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => eliminarMut.mutate(cajaAEliminar.id)}
+                disabled={eliminarMut.isPending}
+                className="flex-1 justify-center flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+              >
+                {eliminarMut.isPending ? t('cajas.eliminando') : t('common.eliminar')}
+              </button>
+              <button
+                onClick={() => setCajaAEliminar(null)}
                 className="btn-secondary"
               >
                 {t('common.cancelar')}
