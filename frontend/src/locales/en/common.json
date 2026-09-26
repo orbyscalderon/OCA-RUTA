@@ -711,6 +711,8 @@
     "error_abrir": "Error opening the cash register",
     "col_cobrador": "Collector",
     "col_ruta": "Route",
+    "col_fecha": "Date",
+    "filtrar_por_fecha_hint": "View cash registers from another day (open ones always show, regardless of date)",
     "col_estado": "Status",
     "col_apertura": "Opening",
     "col_cobros": "Payments",

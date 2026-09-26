@@ -224,7 +224,7 @@ export interface Ruta {
   nombre: string;
   descripcion: string | null;
   activa: boolean;
-  empleado_id: string | null;
+  cobrador_id: string | null;
   direccion?: string | null;
   latitud?: number | null;
   longitud?: number | null;

@@ -23,12 +23,17 @@ export function CajasPage() {
   const [cobradorSeleccionado, setCobradorSeleccionado] = useState('');
   const [rutaSeleccionada, setRutaSeleccionada] = useState('');
   const [montoApertura, setMontoApertura] = useState('0');
+  const [fechaFiltro, setFechaFiltro] = useState(() => new Date().toISOString().slice(0, 10));
 
   const puedeAsignarCajas = user?.permisos?.includes('cajas_supervisar') ?? false;
 
+  // El backend siempre suma las cajas todavía Abiertas sin importar su
+  // fecha (una caja no se cierra hasta que el cobrador cuadra, puede seguir
+  // vigente días después de abrirse) -- este filtro solo decide qué día
+  // revisar para las que ya están cerradas.
   const { data: cajas, isLoading } = useQuery({
-    queryKey: ['cajas-hoy'],
-    queryFn: () => cajasApi.listarDelDia(),
+    queryKey: ['cajas-hoy', fechaFiltro],
+    queryFn: () => cajasApi.listarDelDia(fechaFiltro),
     refetchInterval: 30_000,
   });
 
@@ -52,7 +57,7 @@ export function CajasPage() {
     (cajas ?? []).filter((c) => c.cobrador_id === cobradorSeleccionado).map((c) => c.ruta_id),
   );
   const rutasDisponibles = (rutas ?? []).filter(
-    (r) => r.empleado_id === cobradorSeleccionado && !rutasConCajaHoy.has(r.id),
+    (r) => r.cobrador_id === cobradorSeleccionado && !rutasConCajaHoy.has(r.id),
   );
 
   const abrirMut = useMutation({
@@ -84,10 +89,17 @@ export function CajasPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t('cajas.titulo')}</h1>
           <p className="text-sm text-gray-500">
-            {format(new Date(), "EEEE d 'de' MMMM yyyy", { locale: es })}
+            {format(new Date(`${fechaFiltro}T00:00:00`), "EEEE d 'de' MMMM yyyy", { locale: es })}
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <input
+            type="date"
+            value={fechaFiltro}
+            onChange={(e) => setFechaFiltro(e.target.value)}
+            title={t('cajas.filtrar_por_fecha_hint')}
+            className="input-field w-auto text-sm"
+          />
           <Link to="/cobros/nuevo" className="btn-secondary flex items-center gap-1.5">
             <PiggyBank size={15} />
             {t('cajas.registrar_cobro')}
@@ -122,6 +134,15 @@ export function CajasPage() {
             key: 'ruta',
             header: t('cajas.col_ruta'),
             render: (r) => <span className="text-gray-500">{r.ruta?.nombre ?? '—'}</span>,
+          },
+          {
+            key: 'fecha',
+            header: t('cajas.col_fecha'),
+            render: (r) => (
+              <span className={r.fecha !== fechaFiltro ? 'text-amber-600 font-medium' : 'text-gray-500'}>
+                {format(new Date(`${r.fecha}T00:00:00`), 'dd/MM/yyyy')}
+              </span>
+            ),
           },
           {
             key: 'estado',

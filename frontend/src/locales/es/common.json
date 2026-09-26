@@ -711,6 +711,8 @@
     "error_abrir": "Error al abrir la caja",
     "col_cobrador": "Cobrador",
     "col_ruta": "Ruta",
+    "col_fecha": "Fecha",
+    "filtrar_por_fecha_hint": "Ver cajas de otro día (las abiertas siempre se muestran, sin importar la fecha)",
     "col_estado": "Estado",
     "col_apertura": "Apertura",
     "col_cobros": "Cobros",

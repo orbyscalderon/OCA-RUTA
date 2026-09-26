@@ -289,13 +289,25 @@ export class CajasService {
     };
   }
 
+  /**
+   * Cajas para revisar en el panel: todas las de la fecha pedida (para ver
+   * historial, cerradas incluidas) MÁS cualquier caja que siga Abierta sin
+   * importar cuándo se abrió -- una caja no se cierra hasta que el cobrador
+   * la cuadra, así que puede seguir vigente varios días después de su
+   * fecha de apertura y no debe "desaparecer" de esta pantalla mientras
+   * tanto.
+   */
   async listarCajasDia(tenantId: string, fecha?: string): Promise<Caja[]> {
     const f = fecha ?? fechaHoyEnZona(await this.zonaHorariaService.obtener(tenantId));
-    return this.cajaRepo.find({
-      where: { tenant_id: tenantId, fecha: f },
-      relations: ['cobrador', 'ruta'],
-      order: { hora_apertura: 'ASC' },
-    });
+    return this.cajaRepo
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.cobrador', 'cobrador')
+      .leftJoinAndSelect('c.ruta', 'ruta')
+      .where('c.tenant_id = :tenantId', { tenantId })
+      .andWhere('(c.fecha = :f OR c.estado = :abierta)', { f, abierta: EstadoCaja.ABIERTA })
+      .orderBy('c.fecha', 'DESC')
+      .addOrderBy('c.hora_apertura', 'ASC')
+      .getMany();
   }
 
   /**
