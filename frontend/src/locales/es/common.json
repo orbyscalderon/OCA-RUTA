@@ -877,6 +877,7 @@
     "cobrar_vencidas_confirmar": "¿Disparar ahora el cobro de todas las pruebas y suscripciones vencidas? Esto va a intentar cobrar tarjetas reales.",
     "cobrando": "Cobrando…",
     "cobrar_vencidas_resultado": "{{cobrados}} cobros exitosos, {{fallidos}} fallidos, {{notificados}} avisos enviados (sin tarjeta).",
+    "error_cobrar_vencidas": "No se pudo disparar el cobro de vencidas. Intenta de nuevo.",
     "confirmar": "Confirmar",
     "entendido": "Entendido",
     "guardando": "Guardando…",

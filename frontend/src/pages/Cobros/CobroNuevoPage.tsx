@@ -11,6 +11,7 @@ import { Badge, estadoPrestamoVariant } from '@/components/common/Badge';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/utils/format';
 import { Rol } from '@/types';
+import { mensajeError } from '@/utils/errores';
 
 export function CobroNuevoPage() {
   const { t } = useTranslation();
@@ -154,7 +155,7 @@ export function CobroNuevoPage() {
   });
 
   const errMsg = registrarMut.isError
-    ? ((registrarMut.error as any)?.response?.data?.message ?? t('cobros.error_registrar'))
+    ? mensajeError(registrarMut.error, t('cobros.error_registrar'))
     : null;
 
   const canSubmit = prestamoId && cajaId && parseFloat(monto) > 0 && !montoExcedeSaldo;

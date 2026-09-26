@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { tipoDocumentoPorPais } from '@/utils/documentosIdentidad';
 import { GRUPOS_PERMISOS } from '@/utils/permisos';
 import type { Empleado } from '@/types';
+import { mensajeError } from '@/utils/errores';
 
 type FormData = {
   nombre: string;
@@ -108,7 +109,7 @@ export function EmpleadosPage() {
   };
 
   const crearErr = crearMut.isError
-    ? ((crearMut.error as any)?.response?.data?.message ?? t('empleados.error_crear'))
+    ? mensajeError(crearMut.error, t('empleados.error_crear'))
     : null;
 
   return (

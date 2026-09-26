@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { planesApi } from '@/api/planes.api';
 import { ModalOverlay } from '@/components/common/ModalOverlay';
+import { mensajeError } from '@/utils/errores';
 
 // Login propio de super-admin (JWT separado del de tenants, ver
 // SuperAdminAuthController en el backend). sessionStorage en vez de
@@ -66,7 +67,7 @@ function SuperAdminLogin({ onSuccess }: { onSuccess: () => void }) {
   });
 
   const errMsg = loginMut.isError
-    ? ((loginMut.error as any)?.response?.data?.message ?? t('superadmin.error_login'))
+    ? mensajeError(loginMut.error, t('superadmin.error_login'))
     : null;
 
   return (
@@ -211,7 +212,7 @@ export function SuperAdminPage() {
     onSuccess: () => refetchAdmins(),
   });
   const toggleAdminErr = toggleAdminMut.isError
-    ? ((toggleAdminMut.error as any)?.response?.data?.message ?? t('superadmin.error_cambiar_estado_cuenta'))
+    ? mensajeError(toggleAdminMut.error, t('superadmin.error_cambiar_estado_cuenta'))
     : null;
 
   const cambiarPlanMut = useMutation({
@@ -244,7 +245,7 @@ export function SuperAdminPage() {
       setExtenderMotivo('');
       setExtenderError(null);
     },
-    onError: (err: any) => setExtenderError(err?.response?.data?.message ?? t('superadmin.error_extender_suscripcion')),
+    onError: (err: unknown) => setExtenderError(mensajeError(err, t('superadmin.error_extender_suscripcion'))),
   });
 
   // Eliminar tenant -- irreversible, requiere escribir el nombre exacto de
@@ -262,11 +263,12 @@ export function SuperAdminPage() {
       setEliminarConfirmacion('');
       setEliminarError(null);
     },
-    onError: (err: any) => setEliminarError(err?.response?.data?.message ?? t('superadmin.error_eliminar_tenant')),
+    onError: (err: unknown) => setEliminarError(mensajeError(err, t('superadmin.error_eliminar_tenant'))),
   });
 
   const [showCobrarConfirm, setShowCobrarConfirm] = useState(false);
   const [cobrarResultado, setCobrarResultado] = useState<{ cobrados: number; fallidos: number; notificados: number } | null>(null);
+  const [cobrarError, setCobrarError] = useState<string | null>(null);
 
   const cobrarVencidasMut = useMutation({
     mutationFn: () => superApi.post('/super-admin/cobrar-vencidas').then(unwrap),
@@ -278,7 +280,7 @@ export function SuperAdminPage() {
         notificados: data?.notificados ?? 0,
       });
     },
-    onError: (err: any) => window.alert(err?.response?.data?.message ?? t('superadmin.error_extender_suscripcion')),
+    onError: (err: unknown) => setCobrarError(mensajeError(err, t('superadmin.error_cobrar_vencidas'))),
   });
 
   const extenderSuscripcion = (id: string) => {
@@ -589,7 +591,7 @@ export function SuperAdminPage() {
               </div>
               {crearAdminMut.isError && (
                 <p className="text-xs text-red-400">
-                  {(crearAdminMut.error as any)?.response?.data?.message ?? t('superadmin.error_crear_cuenta')}
+                  {mensajeError(crearAdminMut.error, t('superadmin.error_crear_cuenta'))}
                 </p>
               )}
               <div className="flex gap-2">
@@ -691,6 +693,22 @@ export function SuperAdminPage() {
             </p>
             <button
               onClick={() => setCobrarResultado(null)}
+              className="w-full justify-center flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              {t('superadmin.entendido')}
+            </button>
+          </div>
+        </ModalOverlay>
+      )}
+
+      {/* Modal: error del cobro manual */}
+      {cobrarError && (
+        <ModalOverlay>
+          <div className="w-full max-w-sm rounded-2xl bg-gray-900 border border-gray-800 shadow-2xl p-6 space-y-4 animate-fade-in">
+            <h2 className="text-lg font-bold text-white">{t('superadmin.cobrar_vencidas')}</h2>
+            <p className="text-sm text-red-400">{cobrarError}</p>
+            <button
+              onClick={() => setCobrarError(null)}
               className="w-full justify-center flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
             >
               {t('superadmin.entendido')}

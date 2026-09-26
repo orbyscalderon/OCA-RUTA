@@ -7,6 +7,7 @@ import { prestamosApi } from '@/api/prestamos.api';
 import { empleadosApi } from '@/api/empleados.api';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/utils/format';
+import { mensajeError } from '@/utils/errores';
 
 const MODALIDADES = ['Diario', 'Semanal', 'Quincenal', 'Mensual'] as const;
 
@@ -62,7 +63,7 @@ export function PrestamoRenovarPage() {
   });
 
   const errMsg = renovarMut.isError
-    ? ((renovarMut.error as any)?.response?.data?.message ?? t('prestamos.error_renovar'))
+    ? mensajeError(renovarMut.error, t('prestamos.error_renovar'))
     : null;
 
   const fmt = (n: number) => formatCurrency(n, user);

@@ -107,3 +107,28 @@ export const GRUPOS_PERMISOS: GrupoPermisos[] = [
 ];
 
 export const TODOS_LOS_PERMISOS = GRUPOS_PERMISOS.flatMap((g) => g.items.map((i) => i.clave));
+
+// Mismo orden que el menú del Sidebar -- así la primera pantalla que ve
+// alguien al iniciar sesión es la primera opción de su menú, no un /panel
+// fijo que un cobrador (sin reportes_admin) no puede cargar (403 y "no se
+// pudo cargar el dashboard").
+const RUTA_INICIO_POR_PERMISO: Array<{ ruta: string; permisos: Permiso[] }> = [
+  { ruta: '/panel',          permisos: [Permiso.REPORTES_ADMIN] },
+  { ruta: '/clientes',       permisos: [Permiso.CLIENTES_VER] },
+  { ruta: '/clientes/nuevo', permisos: [Permiso.CLIENTES_CREAR] },
+  { ruta: '/mi-ruta',        permisos: [Permiso.RUTAS_VER_PROPIA] },
+  { ruta: '/prestamos',      permisos: [Permiso.PRESTAMOS_VER] },
+  { ruta: '/cajas',          permisos: [Permiso.CAJAS_OPERAR, Permiso.CAJAS_SUPERVISAR] },
+  { ruta: '/cobros/nuevo',   permisos: [Permiso.COBROS_REGISTRAR] },
+  { ruta: '/rutas',          permisos: [Permiso.RUTAS_GESTIONAR] },
+  { ruta: '/empleados',      permisos: [Permiso.EMPLEADOS_VER] },
+  { ruta: '/buro',           permisos: [Permiso.BURO_CONSULTAR] },
+  { ruta: '/cuentas-cobrar', permisos: [Permiso.REPORTES_AVANZADOS] },
+  { ruta: '/config',         permisos: [Permiso.TENANT_VER_CONFIG] },
+];
+
+export function rutaInicioSegunPermisos(permisos: string[] | undefined | null): string {
+  const propios = permisos ?? [];
+  const match = RUTA_INICIO_POR_PERMISO.find((r) => r.permisos.some((p) => propios.includes(p)));
+  return match?.ruta ?? '/panel';
+}

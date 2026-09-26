@@ -6,6 +6,7 @@ import { ArrowLeft, PlusCircle, Trash2, CalendarDays, AlertCircle } from 'lucide
 import { feriadosApi } from '@/api/feriados.api';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { mensajeError } from '@/utils/errores';
 
 export function FeriadosPage() {
   const { t } = useTranslation();
@@ -39,7 +40,7 @@ export function FeriadosPage() {
   });
 
   const crearErr = crearMut.isError
-    ? ((crearMut.error as any)?.response?.data?.message ?? t('feriados.error_crear'))
+    ? mensajeError(crearMut.error, t('feriados.error_crear'))
     : null;
 
   // Separate tenant feriados from global (tenant_id null = global)

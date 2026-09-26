@@ -10,6 +10,7 @@ import { clientesApi } from '@/api/clientes.api';
 import { rutasApi } from '@/api/rutas.api';
 import { useAuth } from '@/hooks/useAuth';
 import { tipoDocumentoPorPais } from '@/utils/documentosIdentidad';
+import { mensajeError } from '@/utils/errores';
 
 type FormData = {
   cedula: string;
@@ -287,8 +288,7 @@ export function ClienteNuevoPage() {
         {crear.isError && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
             <p className="text-sm text-red-700">
-              {(crear.error as { response?: { data?: { message?: string } } })?.response?.data?.message
-                ?? t('clientes.error_crear')}
+              {mensajeError(crear.error, t('clientes.error_crear'))}
             </p>
           </div>
         )}

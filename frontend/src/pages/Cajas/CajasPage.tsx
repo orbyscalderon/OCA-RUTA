@@ -9,6 +9,7 @@ import { empleadosApi } from '@/api/empleados.api';
 import { Table } from '@/components/common/Table';
 import { Badge } from '@/components/common/Badge';
 import { ModalOverlay } from '@/components/common/ModalOverlay';
+import { mensajeError } from '@/utils/errores';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/utils/format';
 import type { Caja } from '@/types';
@@ -77,8 +78,7 @@ export function CajasPage() {
   });
 
   const errorMsg = abrirMut.isError
-    ? ((abrirMut.error as { response?: { data?: { message?: string } } })?.response?.data?.message
-       ?? t('cajas.error_abrir'))
+    ? mensajeError(abrirMut.error, t('cajas.error_abrir'))
     : null;
 
   const fmt = (n: number) => formatCurrency(n, user);

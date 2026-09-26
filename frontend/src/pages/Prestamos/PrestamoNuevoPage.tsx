@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/utils/format';
 import { Rol } from '@/types';
 import { useState } from 'react';
+import { mensajeError } from '@/utils/errores';
 
 const MODALIDADES = ['Diario', 'Semanal', 'Quincenal', 'Mensual'] as const;
 
@@ -296,8 +297,7 @@ export function PrestamoNuevoPage() {
         {crear.isError && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
             <p className="text-sm text-red-700">
-              {(crear.error as { response?: { data?: { message?: string } } })?.response?.data?.message
-                ?? t('prestamos.error_crear_solicitud')}
+              {mensajeError(crear.error, t('prestamos.error_crear_solicitud'))}
             </p>
           </div>
         )}

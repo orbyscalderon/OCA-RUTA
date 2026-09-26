@@ -877,6 +877,7 @@
     "cobrar_vencidas_confirmar": "Trigger charging all overdue trials and subscriptions now? This will attempt to charge real cards.",
     "cobrando": "Charging…",
     "cobrar_vencidas_resultado": "{{cobrados}} successful charges, {{fallidos}} failed, {{notificados}} notices sent (no card on file).",
+    "error_cobrar_vencidas": "Could not trigger the overdue charge run. Try again.",
     "confirmar": "Confirm",
     "entendido": "Got it",
     "guardando": "Saving…",

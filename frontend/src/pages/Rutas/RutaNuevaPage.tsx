@@ -8,6 +8,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, MapPin, CheckCircle2, LocateFixed } from 'lucide-react';
 import { rutasApi } from '@/api/rutas.api';
 import { empleadosApi } from '@/api/empleados.api';
+import { mensajeError } from '@/utils/errores';
 
 const schema = z.object({
   nombre:      z.string().min(1, 'Requerido').max(100),
@@ -173,8 +174,7 @@ export function RutaNuevaPage() {
         {crear.isError && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
             <p className="text-sm text-red-700">
-              {(crear.error as { response?: { data?: { message?: string } } })?.response?.data?.message
-                ?? t('rutas.error_crear')}
+              {mensajeError(crear.error, t('rutas.error_crear'))}
             </p>
           </div>
         )}

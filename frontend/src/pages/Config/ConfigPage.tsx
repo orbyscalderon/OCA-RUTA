@@ -19,6 +19,7 @@ import { ModalOverlay } from '@/components/common/ModalOverlay';
 import { planesApi, type UsoPlan } from '@/api/planes.api';
 import { formatDate } from '@/utils/format';
 import { clsx } from 'clsx';
+import { mensajeError } from '@/utils/errores';
 
 type FormData = {
   color_primario: string;
@@ -137,7 +138,7 @@ export function ConfigPage() {
   });
 
   const pwdErr = cambiarPwdMut.isError
-    ? ((cambiarPwdMut.error as any)?.response?.data?.message ?? t('config.error_cambiar_contrasena'))
+    ? mensajeError(cambiarPwdMut.error, t('config.error_cambiar_contrasena'))
     : null;
 
   // ── Eliminar mi cuenta ───────────────────────────────────────────────────────
@@ -151,7 +152,7 @@ export function ConfigPage() {
   });
 
   const deleteErr = eliminarCuentaMut.isError
-    ? ((eliminarCuentaMut.error as any)?.response?.data?.message ?? t('config.error_eliminar_cuenta'))
+    ? mensajeError(eliminarCuentaMut.error, t('config.error_eliminar_cuenta'))
     : null;
 
   // ── Settings form ───────────────────────────────────────────────────────────
@@ -207,7 +208,7 @@ export function ConfigPage() {
   });
 
   const errMsg = saveMut.isError
-    ? ((saveMut.error as any)?.response?.data?.message ?? t('config.error_guardar'))
+    ? mensajeError(saveMut.error, t('config.error_guardar'))
     : null;
 
   const whatsappActivo = watch('whatsapp_activo');

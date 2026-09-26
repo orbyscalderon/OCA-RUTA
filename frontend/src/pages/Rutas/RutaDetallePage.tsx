@@ -20,6 +20,7 @@ import { empleadosApi } from '@/api/empleados.api';
 import { Badge } from '@/components/common/Badge';
 import { Table } from '@/components/common/Table';
 import type { Cliente, HistorialCobradorRuta } from '@/types';
+import { mensajeError } from '@/utils/errores';
 
 export function RutaDetallePage() {
   const { t } = useTranslation();
@@ -114,7 +115,7 @@ export function RutaDetallePage() {
   };
 
   const asignarErr = asignarMut.isError
-    ? ((asignarMut.error as any)?.response?.data?.message ?? t('rutas.error_asignar'))
+    ? mensajeError(asignarMut.error, t('rutas.error_asignar'))
     : null;
 
   if (loadingRuta) {

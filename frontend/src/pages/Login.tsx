@@ -8,6 +8,8 @@ import { GoogleLogin } from '@react-oauth/google';
 import { Eye, EyeOff, ArrowRight, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
+import { authStore } from '@/stores/auth.store';
+import { rutaInicioSegunPermisos } from '@/utils/permisos';
 
 export function LoginPage() {
   const { t } = useTranslation();
@@ -26,11 +28,13 @@ export function LoginPage() {
     resolver: zodResolver(schema),
   });
 
-  if (isAuthenticated) return <Navigate to="/panel" replace />;
+  if (isAuthenticated) {
+    return <Navigate to={rutaInicioSegunPermisos(authStore.getUser()?.permisos)} replace />;
+  }
 
   const onSubmit = async (data: FormData) => {
-    const ok = await login(data.email, data.password);
-    if (ok) navigate('/panel', { replace: true });
+    const session = await login(data.email, data.password);
+    if (session) navigate(rutaInicioSegunPermisos(session.permisos), { replace: true });
   };
 
   return (

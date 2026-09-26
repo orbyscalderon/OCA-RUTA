@@ -8,6 +8,7 @@ import { Badge } from '@/components/common/Badge';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/utils/format';
 import { Rol } from '@/types';
+import { mensajeError } from '@/utils/errores';
 
 export function CajaArqueoPage() {
   const { t } = useTranslation();
@@ -156,7 +157,7 @@ export function CajaArqueoPage() {
             </div>
             {gastoMut.isError && (
               <p className="text-xs text-red-500">
-                {(gastoMut.error as any)?.response?.data?.message ?? t('cajas.error_registrar_gasto')}
+                {mensajeError(gastoMut.error, t('cajas.error_registrar_gasto'))}
               </p>
             )}
           </div>

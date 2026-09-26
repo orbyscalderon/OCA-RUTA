@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authApi } from '@/api/auth.api';
 import { authStore, type SessionUser } from '@/stores/auth.store';
 import type { LoginResponse } from '@/api/auth.api';
+import { rutaInicioSegunPermisos } from '@/utils/permisos';
 
 const JWT_DURATION_MS = 8 * 60 * 60 * 1000; // 8h — igual que JWT_EXPIRATION
 
@@ -41,12 +42,12 @@ export function useAuth() {
       const session = buildSession(resp);
       authStore.setSession(session);
       setUser(session);
-      return true;
+      return session;
     } catch (e: unknown) {
       const data = (e as { response?: { data?: { error?: string; message?: string } } })?.response?.data;
       const msg = data?.error ?? data?.message ?? 'Credenciales inválidas';
       setError(msg);
-      return false;
+      return null;
     } finally {
       setLoading(false);
     }
@@ -60,7 +61,7 @@ export function useAuth() {
       const session = buildSession(resp);
       authStore.setSession(session);
       setUser(session);
-      navigate('/panel', { replace: true });
+      navigate(rutaInicioSegunPermisos(session.permisos), { replace: true });
     } catch (e: unknown) {
       // El filtro de excepciones del backend devuelve { error, details.message }
       const data = (e as { response?: { data?: { error?: string; message?: string; details?: { message?: string } } } })

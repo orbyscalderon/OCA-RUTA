@@ -5,6 +5,7 @@ import { Download, Shield, HardDrive, Clock, Upload, AlertCircle, CheckCircle2 }
 import { api } from '@/api/axios';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { mensajeError } from '@/utils/errores';
 
 interface RestoreResult {
   restaurados: Record<string, number>;
@@ -74,7 +75,7 @@ export function BackupPage() {
   });
 
   const restoreErrMsg = restoreMut.isError
-    ? ((restoreMut.error as any)?.response?.data?.message ?? t('backup.error_restaurar'))
+    ? mensajeError(restoreMut.error, t('backup.error_restaurar'))
     : null;
 
   return (

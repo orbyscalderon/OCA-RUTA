@@ -19,6 +19,7 @@ import { ModalOverlay } from '@/components/common/ModalOverlay';
 import type { CuotaAmortizacion } from '@/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { mensajeError } from '@/utils/errores';
 
 function mañana() {
   const d = new Date();
@@ -102,11 +103,11 @@ export function PrestamoDetallePage() {
   });
 
   const aprobarErr = aprobarMut.isError
-    ? ((aprobarMut.error as any)?.response?.data?.message ?? t('prestamos.error_aprobar'))
+    ? mensajeError(aprobarMut.error, t('prestamos.error_aprobar'))
     : null;
 
   const vencidoErr = marcarVencidoMut.isError
-    ? ((marcarVencidoMut.error as any)?.response?.data?.message ?? t('prestamos.error_marcar_vencido'))
+    ? mensajeError(marcarVencidoMut.error, t('prestamos.error_marcar_vencido'))
     : null;
 
   const fmt = (n: number) => formatCurrency(n, settings);
