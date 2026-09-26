@@ -205,6 +205,7 @@ export class ClientesService {
     const skip = (page - 1) * limit;
 
     const qb = this.repo.createQueryBuilder('c')
+      .leftJoinAndSelect('c.ruta', 'ruta')
       .where('c.tenant_id = :tenantId', { tenantId });
 
     if (q && q.trim()) {

@@ -56,6 +56,13 @@ export function ClientesPage() {
           { key: 'nombre',   header: t('clientes.col_nombre'), render: (r) => `${r.nombre} ${r.apellido}` },
           { key: 'telefono', header: t('clientes.col_telefono'), render: (r) => r.telefono ?? '—' },
           {
+            key: 'ruta',
+            header: t('clientes.col_ruta'),
+            render: (r) => r.ruta?.nombre
+              ? <span className="text-gray-500">{r.ruta.nombre}</span>
+              : <span className="text-amber-600 text-xs font-medium">{t('clientes.sin_ruta')}</span>,
+          },
+          {
             key: 'activo',
             header: t('clientes.col_estado'),
             render: (r) => <Badge label={r.activo ? t('common.activo') : t('common.inactivo')} variant={r.activo ? 'green' : 'gray'} />,

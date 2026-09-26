@@ -51,6 +51,7 @@ export interface Cliente {
   longitud_casa: number | null;
   activo: boolean;
   ruta_id: string | null;
+  ruta?: Pick<Ruta, 'nombre'> | null;
   orden_visita: number | null;
   foto_cedula_frontal_url: string | null;
   foto_cedula_trasera_url: string | null;

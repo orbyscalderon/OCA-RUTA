@@ -190,6 +190,8 @@
     "col_cedula": "ID Number",
     "col_nombre": "Name",
     "col_telefono": "Phone",
+    "col_ruta": "Route",
+    "sin_ruta": "No route",
     "col_estado": "Status",
     "sin_resultados": "No clients found",
     "minimo3": "Minimum 3 characters",

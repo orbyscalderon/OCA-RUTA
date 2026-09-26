@@ -190,6 +190,8 @@
     "col_cedula": "Cédula",
     "col_nombre": "Nombre",
     "col_telefono": "Teléfono",
+    "col_ruta": "Ruta",
+    "sin_ruta": "Sin ruta",
     "col_estado": "Estado",
     "sin_resultados": "No se encontraron clientes",
     "minimo3": "Mínimo 3 caracteres",
