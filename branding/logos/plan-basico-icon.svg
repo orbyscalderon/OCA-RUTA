@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t-basico">
+  <title id="t-basico">Plan Básico</title>
+  <rect width="64" height="64" rx="16" fill="#2563EB" />
+  <circle cx="18" cy="42" r="4" fill="#FFFFFF" />
+  <path d="M18,42 C18,26 46,30 46,18" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
+  <circle cx="46" cy="18" r="6" fill="#FFFFFF" />
+  <circle cx="46" cy="18" r="2.2" fill="#2563EB" />
+</svg>

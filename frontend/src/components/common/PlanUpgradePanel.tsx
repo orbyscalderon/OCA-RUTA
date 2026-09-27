@@ -13,8 +13,17 @@ import { GooglePayButton } from '@/components/common/GooglePayButton';
 import { StripeCardPayButton } from '@/components/common/StripeCardPayButton';
 import { useAuth } from '@/hooks/useAuth';
 import { clsx } from 'clsx';
+import iconoBasico from '@/assets/planes/basico.svg';
+import iconoGrowth from '@/assets/planes/growth.svg';
+import iconoPro from '@/assets/planes/pro.svg';
 
 const STRIPE_PUBLISHABLE_KEY_PRESENTE = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+const ICONOS_PLAN: Record<string, string> = {
+  basico: iconoBasico,
+  growth: iconoGrowth,
+  pro: iconoPro,
+};
 
 export function PlanUpgradePanel({ onSuccess }: { onSuccess?: () => void }) {
   const { t } = useTranslation();
@@ -74,6 +83,9 @@ export function PlanUpgradePanel({ onSuccess }: { onSuccess?: () => void }) {
                 selected ? 'border-brand-500 ring-2 ring-brand-300 bg-white' : 'border-gray-200 bg-white hover:border-gray-300',
               )}
             >
+              {ICONOS_PLAN[plan.id] && (
+                <img src={ICONOS_PLAN[plan.id]} alt="" className="w-10 h-10 rounded-xl mb-2" />
+              )}
               <p className="font-extrabold text-gray-900">{plan.nombre}</p>
               <p className="text-2xl font-black text-gray-900 mt-1">${p.toFixed(0)}<span className="text-sm font-medium text-gray-400">/mes</span></p>
             </button>
