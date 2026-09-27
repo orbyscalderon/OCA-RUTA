@@ -212,13 +212,36 @@ export class AuthService {
     if (!tenant || !tenant.activo) throw new UnauthorizedException(msg('auth_empresa_inactiva'));
 
     const settings = await this.settingsRepo.findOne({ where: { tenant_id: usuario.tenant_id } });
+    const permisos = permisosEfectivos(usuario.rol, usuario.permisos_custom);
+
+    // El JWT lleva rol/permisos congelados desde el login (PermisosGuard los
+    // lee del token, no de la DB) -- si un admin le cambia los permisos a
+    // alguien con la sesión YA abierta, el front puede refrescar lo que
+    // MUESTRA (sessionStorage) pero el backend seguía autorizando con el
+    // token viejo hasta un logout/login real. Reemitir el token acá, cada
+    // vez que se llama /auth/me, hace que ambos lados queden sincronizados
+    // sin pedirle a nadie que vuelva a loguearse.
+    const access_token = empleado
+      ? await this.jwtService.signAsync(
+          {
+            sub: usuario.id,
+            tenantId: usuario.tenant_id,
+            empleadoId: empleado.id,
+            rol: usuario.rol,
+            permisos,
+            email: usuario.email,
+          },
+          { expiresIn: this.config.get('JWT_EXPIRATION', '8h') },
+        )
+      : undefined;
 
     return {
+      access_token,
       usuario: {
         id: usuario.id,
         email: usuario.email,
         rol: usuario.rol,
-        permisos: permisosEfectivos(usuario.rol, usuario.permisos_custom),
+        permisos,
         nombre: empleado?.nombre ?? '',
         apellido: empleado?.apellido ?? '',
         empleado_id: empleado?.id ?? '',

@@ -78,9 +78,19 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @ApiBearerAuth('JWT')
-  @ApiOperation({ summary: 'Devuelve los datos del usuario autenticado (útil tras OAuth redirect)' })
-  async me(@CurrentUser() user: JwtPayload) {
-    return this.authService.getMe(user.sub);
+  @ApiOperation({
+    summary: 'Devuelve los datos del usuario autenticado (útil tras OAuth redirect)',
+    description: 'Reemite el token con los permisos/rol actuales de la DB -- si cambiaron desde el login, esto es lo que hace que el backend empiece a autorizar con el valor nuevo sin pedir un logout/login real.',
+  })
+  async me(
+    @CurrentUser() user: JwtPayload,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const data = await this.authService.getMe(user.sub);
+    if (data.access_token) {
+      res.cookie(COOKIE_NAME, data.access_token, cookieOptions(this.config.get('NODE_ENV') === 'production'));
+    }
+    return data;
   }
 
   @UseGuards(JwtAuthGuard)

@@ -71,8 +71,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final rol = data['usuario']['rol'] as String?;
       final permisos = (data['usuario']['permisos'] as List?)?.cast<String>() ?? const [];
       final tenantConfigJson = data['tenant_config'] as Map<String, dynamic>?;
+      // El JWT viejo guardado en el teléfono lleva permisos/rol congelados
+      // desde el login -- el backend reemite uno nuevo acá con lo que hay
+      // hoy en la DB (ver AuthService.getMe), pero de nada sirve si no lo
+      // guardamos: sin esto, PermisosGuard sigue autorizando con el token
+      // viejo aunque el rol/permisos ya se vean actualizados en pantalla.
+      final tokenNuevo = data['access_token'] as String?;
+      if (tokenNuevo != null && tokenNuevo.isNotEmpty) {
+        await ApiClient.instance.saveToken(tokenNuevo);
+      }
       state = AuthState(
-        token: token,
+        token: tokenNuevo ?? token,
         rol: rol,
         permisos: permisos,
         isAuthenticated: true,
