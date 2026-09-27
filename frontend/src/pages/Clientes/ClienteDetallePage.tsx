@@ -2,16 +2,18 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CreditCard, ScanLine, Upload, X as XIcon, CheckCircle2, FileDown } from 'lucide-react';
+import { ArrowLeft, CreditCard, ScanLine, Upload, X as XIcon, CheckCircle2, FileDown, Pencil } from 'lucide-react';
 import { clientesApi } from '@/api/clientes.api';
 import { prestamosApi } from '@/api/prestamos.api';
 import { rutasApi } from '@/api/rutas.api';
 import { Table } from '@/components/common/Table';
 import { Badge, estadoPrestamoVariant } from '@/components/common/Badge';
+import { ModalOverlay } from '@/components/common/ModalOverlay';
 import { generarEstadoCuentaPDF } from '@/utils/estado-cuenta.pdf';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/utils/format';
 import { mensajeError } from '@/utils/errores';
+import { tipoDocumentoPorPais } from '@/utils/documentosIdentidad';
 import type { Prestamo } from '@/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -21,6 +23,7 @@ export function ClienteDetallePage() {
   const { id } = useParams<{ id: string }>();
   const qc = useQueryClient();
   const { user } = useAuth();
+  const tipoDoc = tipoDocumentoPorPais(user?.tenant_pais);
 
   const [frontalFile, setFrontalFile] = useState<File | null>(null);
   const [traseraFile, setTraseraFile] = useState<File | null>(null);
@@ -31,8 +34,15 @@ export function ClienteDetallePage() {
   const traseraRef = useRef<HTMLInputElement>(null);
   const [editandoRuta, setEditandoRuta] = useState(false);
   const [rutaSeleccionada, setRutaSeleccionada] = useState('');
+  const [editandoCliente, setEditandoCliente] = useState(false);
+  const [formCliente, setFormCliente] = useState({ nombre: '', apellido: '', cedula: '', telefono: '', direccion_casa: '' });
 
+  // Mismo permiso para editar datos del cliente y para reasignarle ruta --
+  // por defecto lo traen admin y supervisor (PERMISOS_POR_ROL), pero NO
+  // cobrador_tenant, así que un cobrador normal no lo ve salvo que se lo
+  // personalicen a propósito.
   const puedeEditarRuta = user?.permisos?.includes('clientes_editar') ?? false;
+  const puedeEditarCliente = puedeEditarRuta;
 
   const { data: cliente } = useQuery({
     queryKey: ['cliente', id],
@@ -53,6 +63,32 @@ export function ClienteDetallePage() {
       setEditandoRuta(false);
     },
   });
+
+  const editarClienteMut = useMutation({
+    mutationFn: () => clientesApi.actualizar(id!, {
+      nombre: formCliente.nombre,
+      apellido: formCliente.apellido,
+      cedula: formCliente.cedula || undefined,
+      telefono: formCliente.telefono || undefined,
+      direccion_casa: formCliente.direccion_casa || undefined,
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['cliente', id] });
+      setEditandoCliente(false);
+    },
+  });
+
+  const abrirEditarCliente = () => {
+    if (!cliente) return;
+    setFormCliente({
+      nombre: cliente.nombre,
+      apellido: cliente.apellido,
+      cedula: cliente.cedula ?? '',
+      telefono: cliente.telefono ?? '',
+      direccion_casa: cliente.direccion_casa ?? '',
+    });
+    setEditandoCliente(true);
+  };
 
   const { data: prestamos, isLoading } = useQuery({
     queryKey: ['prestamos-cliente', id],
@@ -92,9 +128,20 @@ export function ClienteDetallePage() {
       {cliente && (
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
-              {cliente.nombre} {cliente.apellido}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-gray-900">
+                {cliente.nombre} {cliente.apellido}
+              </h1>
+              {puedeEditarCliente && (
+                <button
+                  onClick={abrirEditarCliente}
+                  title={t('clientes.editar')}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                >
+                  <Pencil size={14} />
+                </button>
+              )}
+            </div>
             <div className="mt-3 grid grid-cols-2 gap-3 text-sm text-gray-600 lg:grid-cols-4">
               <div><span className="font-medium">{t('clientes.campo_cedula')}</span> {cliente.cedula ?? '—'}</div>
               <div><span className="font-medium">{t('clientes.campo_telefono')}</span> {cliente.telefono ?? '—'}</div>
@@ -318,6 +365,92 @@ export function ClienteDetallePage() {
           emptyMessage={t('clientes.sin_prestamos')}
         />
       </div>
+
+      {/* Modal editar cliente */}
+      {editandoCliente && (
+        <ModalOverlay>
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 space-y-5 animate-fade-in overflow-y-auto max-h-[90vh]">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">{t('clientes.editar_titulo')}</h2>
+              <button onClick={() => setEditandoCliente(false)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100" aria-label={t('common.cancelar')}>
+                <XIcon size={16} />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => { e.preventDefault(); editarClienteMut.mutate(); }}
+              className="space-y-4"
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('clientes.nombre')} <span className="text-red-400">*</span></label>
+                  <input
+                    value={formCliente.nombre}
+                    onChange={(e) => setFormCliente((f) => ({ ...f, nombre: e.target.value }))}
+                    className="input-field"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('clientes.apellido')} <span className="text-red-400">*</span></label>
+                  <input
+                    value={formCliente.apellido}
+                    onChange={(e) => setFormCliente((f) => ({ ...f, apellido: e.target.value }))}
+                    className="input-field"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{tipoDoc.etiqueta}</label>
+                <input
+                  value={formCliente.cedula}
+                  onChange={(e) => setFormCliente((f) => ({ ...f, cedula: e.target.value }))}
+                  className="input-field"
+                  placeholder={tipoDoc.placeholder}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('clientes.telefono')}</label>
+                  <input
+                    value={formCliente.telefono}
+                    onChange={(e) => setFormCliente((f) => ({ ...f, telefono: e.target.value }))}
+                    className="input-field"
+                    placeholder={t('clientes.telefono_placeholder')}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('clientes.direccion')}</label>
+                  <input
+                    value={formCliente.direccion_casa}
+                    onChange={(e) => setFormCliente((f) => ({ ...f, direccion_casa: e.target.value }))}
+                    className="input-field"
+                    placeholder={t('clientes.direccion_placeholder')}
+                  />
+                </div>
+              </div>
+
+              {editarClienteMut.isError && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2">
+                  <p className="text-xs text-red-700">{mensajeError(editarClienteMut.error, t('clientes.error_editar'))}</p>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <button type="submit" disabled={editarClienteMut.isPending} className="btn-primary flex-1 justify-center">
+                  {editarClienteMut.isPending ? t('clientes.guardando') : t('common.guardar')}
+                </button>
+                <button type="button" onClick={() => setEditandoCliente(false)} className="btn-secondary">
+                  {t('common.cancelar')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </ModalOverlay>
+      )}
     </div>
   );
 }

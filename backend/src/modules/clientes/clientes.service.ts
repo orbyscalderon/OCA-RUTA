@@ -125,8 +125,21 @@ export class ClientesService {
 
   async actualizar(tenantId: string, id: string, dto: ActualizarClienteDto): Promise<Cliente> {
     const cliente = await this.obtener(tenantId, id);
+
+    let cedulaNueva: string | undefined;
+    if (dto.cedula) {
+      cedulaNueva = normalizarDocumento(dto.cedula);
+      // Mismo chequeo que crear() -- sin esto, editar podía pisar la cédula
+      // de otro cliente del tenant sin avisar, coló el buró de crédito
+      // cross-tenant (que matchea por cédula) hacia la persona equivocada.
+      if (cedulaNueva !== cliente.cedula) {
+        const existe = await this.repo.findOne({ where: { tenant_id: tenantId, cedula: cedulaNueva } });
+        if (existe && existe.id !== id) throw new BadRequestException(msg('clientes_cedula_duplicada'));
+      }
+    }
+
     Object.assign(cliente, dto);
-    if (dto.cedula) cliente.cedula = normalizarDocumento(dto.cedula);
+    if (cedulaNueva) cliente.cedula = cedulaNueva;
     return this.repo.save(cliente);
   }
 
