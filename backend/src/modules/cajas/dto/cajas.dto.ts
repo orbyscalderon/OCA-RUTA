@@ -113,6 +113,7 @@ export class RegistrarGastoDto {
 export class ArqueoCajaResponseDto {
   caja_id: string;
   cobrador_nombre: string;
+  ruta_id: string | null;
   ruta_nombre: string | null;
   fecha: string;
   estado: string;

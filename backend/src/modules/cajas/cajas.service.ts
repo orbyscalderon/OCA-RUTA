@@ -112,6 +112,22 @@ export class CajasService {
 
       if (!caja) throw new NotFoundException(msg('cajas_activa_no_encontrada'));
 
+      // Mientras la ruta tenga préstamos Activos, la caja se queda abierta
+      // -- si se cerrara igual, el cobrador se queda sin forma de cobrarle
+      // a esos clientes (el registro de cobro exige caja Abierta) hasta que
+      // el admin le asigne una nueva. La caja funciona como el "libro" de
+      // esa ruta mientras dure el negocio ahí, no un cierre diario --
+      // mientras tanto, ver el arqueo (totales en vivo) no requiere cerrar.
+      if (caja.ruta_id) {
+        const [{ count }] = await tx.query<{ count: string }[]>(
+          `SELECT COUNT(*) FROM prestamos WHERE ruta_id = $1 AND estado = 'Activo'`,
+          [caja.ruta_id],
+        );
+        if (parseInt(count, 10) > 0) {
+          throw new BadRequestException(msg('cajas_ruta_tiene_prestamos_activos'));
+        }
+      }
+
       // Calcular monto esperado final (redundante por columna generada, pero explícito)
       const montoEsperado = caja.monto_apertura + caja.total_cobros - caja.total_gastos;
       const diferencia = dto.monto_cierre_declarado - montoEsperado;
@@ -320,6 +336,7 @@ export class CajasService {
       cobrador_nombre: caja.cobrador
         ? `${(caja.cobrador as any).nombre} ${(caja.cobrador as any).apellido}`
         : '---',
+      ruta_id: caja.ruta_id,
       ruta_nombre: caja.ruta ? (caja.ruta as any).nombre : null,
       fecha: caja.fecha,
       estado: caja.estado,

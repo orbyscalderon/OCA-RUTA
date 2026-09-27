@@ -758,6 +758,7 @@
     "monto_declarado_placeholder": "Declared amount",
     "cerrar": "Close",
     "cuadre_revisado_admin": "The cash count result is reviewed by the administrator.",
+    "no_cerrar_prestamos_activos": "You can't close this cash register while your route has active loans -- the totals above update on their own, no need to close it to see them.",
     "error_cerrar": "Could not close the cash register",
     "cerrando": "Closing…",
     "pendiente_revision": "Pending review",

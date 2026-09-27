@@ -758,6 +758,7 @@
     "monto_declarado_placeholder": "Monto declarado",
     "cerrar": "Cerrar",
     "cuadre_revisado_admin": "El resultado del cuadre es revisado por el administrador.",
+    "no_cerrar_prestamos_activos": "No podés cerrar esta caja mientras tu ruta tenga préstamos activos -- los totales de arriba se actualizan solos, no hace falta cerrar para verlos.",
     "error_cerrar": "No se pudo cerrar la caja",
     "cerrando": "Cerrando…",
     "pendiente_revision": "Pendiente de revisión",

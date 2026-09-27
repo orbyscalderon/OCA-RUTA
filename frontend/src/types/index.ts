@@ -147,6 +147,7 @@ export interface Caja {
 export interface ArqueoCaja {
   caja_id: string;
   cobrador_nombre: string;
+  ruta_id: string | null;
   ruta_nombre: string | null;
   fecha: string;
   estado: EstadoCaja;

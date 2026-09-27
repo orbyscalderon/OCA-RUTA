@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Lock, Receipt, PiggyBank, MinusCircle, ShieldAlert } from 'lucide-react';
 import { cajasApi } from '@/api/cajas.api';
+import { prestamosApi } from '@/api/prestamos.api';
 import { Badge } from '@/components/common/Badge';
 import { ModalOverlay } from '@/components/common/ModalOverlay';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,6 +30,17 @@ export function CajaArqueoPage() {
     queryFn: () => cajasApi.obtenerArqueo(id!),
     enabled: !!id,
   });
+
+  // La caja de una ruta con préstamos Activos no se puede cerrar (ver
+  // cerrar() en el backend) -- se pide acá para ocultar el formulario de
+  // cierre de una vez, en vez de dejar que el cobrador lo intente y
+  // recién ahí se entere.
+  const { data: prestamosRuta } = useQuery({
+    queryKey: ['prestamos-ruta', caja?.ruta_id],
+    queryFn: () => prestamosApi.porRuta(caja!.ruta_id!),
+    enabled: !!caja?.ruta_id,
+  });
+  const tienePrestamosActivos = (prestamosRuta ?? []).some((p) => p.estado === 'Activo');
 
   const { data: movimientos = [] } = useQuery({
     queryKey: ['movimientos', id],
@@ -222,8 +234,20 @@ export function CajaArqueoPage() {
           </div>
         )}
 
-        {/* Formulario de cierre */}
-        {caja.estado === 'Abierta' && (
+        {/* Formulario de cierre -- no se ofrece mientras la ruta tenga
+            préstamos Activos (el backend lo rechazaría igual: la caja es
+            el "libro" de la ruta mientras dure el negocio ahí, no se
+            cierra a diario). Los totales de arriba ya sirven de
+            dashboard en vivo sin necesidad de cerrar. */}
+        {caja.estado === 'Abierta' && tienePrestamosActivos && (
+          <div className="border-t border-gray-100 pt-4">
+            <p className="text-xs text-gray-400 italic flex items-center gap-2">
+              <Lock size={13} />
+              {t('cajas.no_cerrar_prestamos_activos')}
+            </p>
+          </div>
+        )}
+        {caja.estado === 'Abierta' && !tienePrestamosActivos && (
           <div className="border-t border-gray-100 pt-4 space-y-3">
             <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
               <Lock size={14} />
