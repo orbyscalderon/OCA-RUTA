@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8">
+<style>
+  :root{--blue:#2563EB;--blue-dark:#1D4ED8;--indigo:#1E3A8A;--emerald:#10B981;--gold:#FBBF24;--ink:#0F172A;--muted:#64748B;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;width:1080px;height:1080px;overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{width:1080px;height:1080px;background:linear-gradient(160deg,#1D4ED8 0%,#2563EB 55%,#1E3A8A 100%);position:relative;overflow:hidden;}
+  .logo-row{position:absolute;top:56px;left:56px;display:flex;align-items:center;gap:16px;}
+  .logo-row svg{width:56px;height:56px;}
+  .logo-row .name{color:#fff;font-size:34px;font-weight:800;}
+  .headline{position:absolute;top:190px;left:56px;width:560px;color:#fff;font-size:64px;font-weight:800;line-height:1.16;}
+  .headline .hi{color:var(--gold);}
+  .sub{position:absolute;top:470px;left:56px;width:520px;color:rgba(255,255,255,.88);font-size:28px;font-weight:500;line-height:1.5;}
+  .cta{position:absolute;top:900px;left:56px;background:#fff;color:var(--ink);font-weight:800;font-size:26px;
+    padding:20px 34px;border-radius:14px;display:flex;align-items:center;gap:12px;}
+
+  .phone{position:absolute;right:56px;top:180px;width:340px;height:700px;background:#0F172A;border-radius:44px;padding:12px;box-shadow:0 30px 60px rgba(0,0,0,.35);}
+  .phone .notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:110px;height:22px;background:#0F172A;border-radius:0 0 14px 14px;z-index:2;}
+  .phone .screen{width:100%;height:100%;border-radius:32px;overflow:hidden;background:#fff;display:flex;flex-direction:column;}
+  .topbar{height:78px;background:var(--blue);display:flex;align-items:center;padding:0 22px;color:#fff;font-size:21px;font-weight:700;flex-shrink:0;}
+  .body{flex:1;padding:18px;}
+  .row{display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+  .row .who{display:flex;align-items:center;gap:12px;}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;}
+  .name2{font-size:16px;font-weight:700;color:var(--ink);}
+  .sub2{font-size:12px;color:var(--muted);}
+  .amt{font-size:16px;font-weight:800;color:var(--emerald);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-row">
+    <svg viewBox="0 0 150 150"><circle cx="26" cy="90" r="9" fill="#FFFFFF"/><path d="M26,90 C26,40 74,40 82,68 C90,96 122,96 124,56" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/><circle cx="124" cy="52" r="22" fill="#FFFFFF"/><circle cx="124" cy="52" r="8" fill="#1D4ED8"/></svg>
+    <div class="name">OCA Ruta</div>
+  </div>
+  <div class="headline">Controla tu <span class="hi">cobranza en ruta</span> desde el celular</div>
+  <div class="sub">Préstamos, cobros, cajas y reportes en un solo lugar. Sin libreta, sin WhatsApp.</div>
+  <div class="cta">▶ Disponible en Google Play</div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="topbar">Cobros de hoy</div>
+      <div class="body">
+        <div class="row"><div class="who"><div class="avatar">MR</div><div><div class="name2">María Ramírez</div><div class="sub2">RD$1,500</div></div></div><div class="amt">✓</div></div>
+        <div class="row"><div class="who"><div class="avatar">JP</div><div><div class="name2">Juan Pérez</div><div class="sub2">RD$2,000</div></div></div><div class="amt">✓</div></div>
+        <div class="row"><div class="who"><div class="avatar">CS</div><div><div class="name2">Carla Sosa</div><div class="sub2">RD$1,200</div></div></div><div class="amt">RD$1,200</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

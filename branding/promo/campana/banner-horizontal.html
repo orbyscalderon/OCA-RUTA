@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8">
+<style>
+  :root{--blue:#2563EB;--emerald:#10B981;--ink:#0F172A;--muted:#64748B;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;width:1200px;height:628px;overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{width:1200px;height:628px;background:linear-gradient(135deg,#1D4ED8 0%,#2563EB 60%);display:flex;align-items:center;position:relative;overflow:hidden;padding:0 64px;}
+  .left{width:600px;}
+  .logo-row{display:flex;align-items:center;gap:14px;margin-bottom:34px;}
+  .logo-row svg{width:44px;height:44px;}
+  .logo-row .name{color:#fff;font-size:26px;font-weight:800;}
+  .headline{color:#fff;font-size:46px;font-weight:800;line-height:1.2;}
+  .headline span{color:#FBBF24;}
+  .sub{margin-top:18px;color:rgba(255,255,255,.85);font-size:21px;font-weight:500;line-height:1.5;max-width:520px;}
+  .cta{margin-top:32px;background:#fff;color:var(--ink);font-weight:800;font-size:20px;padding:16px 28px;border-radius:12px;display:inline-flex;align-items:center;gap:10px;}
+
+  .browser{position:absolute;right:-40px;top:74px;width:600px;height:480px;background:#fff;border-radius:18px;box-shadow:0 30px 60px rgba(0,0,0,.3);overflow:hidden;transform:rotate(2deg);}
+  .bar{height:36px;background:#E2E8F0;display:flex;align-items:center;gap:8px;padding:0 16px;}
+  .bar span{width:10px;height:10px;border-radius:50%;background:#CBD5E1;display:block;}
+  .body{padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:16px;text-align:left;}
+  .card .label{font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+  .card .value{margin-top:6px;font-size:26px;font-weight:800;color:var(--ink);}
+  .card.blue .value{color:var(--blue);}
+  .card.green .value{color:var(--emerald);}
+  .card.amber .value{color:#D97706;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="left">
+    <div class="logo-row">
+      <svg viewBox="0 0 150 150"><circle cx="26" cy="90" r="9" fill="#FFFFFF"/><path d="M26,90 C26,40 74,40 82,68 C90,96 122,96 124,56" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/><circle cx="124" cy="52" r="22" fill="#FFFFFF"/><circle cx="124" cy="52" r="8" fill="#1D4ED8"/></svg>
+      <div class="name">OCA Ruta</div>
+    </div>
+    <div class="headline">Cobranza en ruta, <span>bajo control</span></div>
+    <div class="sub">Préstamos, cobros, cajas y reportes — app móvil + panel web, todo conectado.</div>
+    <div class="cta">▶ Prueba gratis 7 días</div>
+  </div>
+  <div class="browser">
+    <div class="bar"><span></span><span></span><span></span></div>
+    <div class="body">
+      <div class="card blue"><div class="label">Cartera total</div><div class="value">RD$1.2M</div></div>
+      <div class="card green"><div class="label">Cobrado hoy</div><div class="value">RD$48,500</div></div>
+      <div class="card amber"><div class="label">Mora total</div><div class="value">RD$32,100</div></div>
+      <div class="card"><div class="label">Cajas abiertas</div><div class="value">6</div></div>
+    </div>
+  </div>
+</div>
+</body></html>
