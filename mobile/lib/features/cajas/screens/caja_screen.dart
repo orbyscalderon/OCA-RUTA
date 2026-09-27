@@ -141,6 +141,28 @@ class _CajaScreenState extends ConsumerState<CajaScreen> {
               : () async {
                   final monto = double.tryParse(_montoCtrl.text.trim());
                   if (monto == null) return;
+                  // Confirmación a propósito genérica -- no puede mencionar
+                  // la diferencia real, eso rompería el cierre ciego (el
+                  // cobrador nunca ve el monto esperado, solo el admin al
+                  // revisar).
+                  final confirmado = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text(l10n.confirmarCierreTitulo),
+                      content: Text(l10n.confirmarCierreTexto('$simbolo ${monto.toStringAsFixed(2)}')),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: Text(l10n.cancelar),
+                        ),
+                        FilledButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: Text(l10n.confirmarYCerrar),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmado != true) return;
                   setState(() => _loading = true);
                   try {
                     await ref.read(cajaActivaProvider.notifier).cerrar(monto);

@@ -172,7 +172,10 @@ export function CajasPage() {
             key: 'estado',
             header: t('cajas.col_estado'),
             render: (r) => (
-              <Badge label={r.estado} variant={r.estado === 'Abierta' ? 'green' : 'gray'} />
+              <Badge
+                label={r.estado === 'PendienteRevision' ? t('cajas.pendiente_revision') : r.estado}
+                variant={r.estado === 'Abierta' ? 'green' : r.estado === 'PendienteRevision' ? 'amber' : 'gray'}
+              />
             ),
           },
           {

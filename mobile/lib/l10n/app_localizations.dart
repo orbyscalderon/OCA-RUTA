@@ -514,6 +514,24 @@ abstract class AppLocalizations {
   /// **'Caja cerrada correctamente'**
   String get cajaCerradaCorrectamente;
 
+  /// No description provided for @confirmarCierreTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar cierre de caja'**
+  String get confirmarCierreTitulo;
+
+  /// No description provided for @confirmarCierreTexto.
+  ///
+  /// In es, this message translates to:
+  /// **'Vas a declarar {monto} como el monto físico que tenés en caja ahora mismo. Una vez enviado no podés modificarlo -- un administrador va a revisar el cierre.'**
+  String confirmarCierreTexto(String monto);
+
+  /// No description provided for @confirmarYCerrar.
+  ///
+  /// In es, this message translates to:
+  /// **'Sí, cerrar caja'**
+  String get confirmarYCerrar;
+
   /// No description provided for @copyrightOcaHoldingCorto.
   ///
   /// In es, this message translates to:

@@ -39,9 +39,10 @@ export enum TipoTransaccion {
 }
 
 export enum EstadoCaja {
-  ABIERTA   = 'Abierta',
-  CERRADA   = 'Cerrada',
-  CUADRADA  = 'Cuadrada',
+  ABIERTA             = 'Abierta',
+  PENDIENTE_REVISION  = 'PendienteRevision',
+  CERRADA             = 'Cerrada',
+  CUADRADA            = 'Cuadrada',
 }
 
 export enum TipoNovedad {

@@ -2,13 +2,16 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Lock, Receipt, PiggyBank, MinusCircle } from 'lucide-react';
+import { ArrowLeft, Lock, Receipt, PiggyBank, MinusCircle, ShieldAlert } from 'lucide-react';
 import { cajasApi } from '@/api/cajas.api';
 import { Badge } from '@/components/common/Badge';
+import { ModalOverlay } from '@/components/common/ModalOverlay';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/utils/format';
 import { Rol } from '@/types';
 import { mensajeError } from '@/utils/errores';
+
+const badgeEstado = { Abierta: 'green', PendienteRevision: 'amber', Cerrada: 'gray' } as const;
 
 export function CajaArqueoPage() {
   const { t } = useTranslation();
@@ -18,6 +21,8 @@ export function CajaArqueoPage() {
   const [montoCierre, setMontoCierre] = useState('');
   const [montoGasto, setMontoGasto] = useState('');
   const [descGasto, setDescGasto] = useState('');
+  const [confirmarCierre, setConfirmarCierre] = useState(false);
+  const [confirmarReapertura, setConfirmarReapertura] = useState(false);
 
   const { data: caja, isLoading } = useQuery({
     queryKey: ['arqueo', id],
@@ -51,6 +56,24 @@ export function CajaArqueoPage() {
     mutationFn: () =>
       cajasApi.cerrar(id!, { monto_cierre_declarado: parseFloat(montoCierre) || 0 }),
     onSuccess: () => {
+      setConfirmarCierre(false);
+      qc.invalidateQueries({ queryKey: ['arqueo', id] });
+      qc.invalidateQueries({ queryKey: ['cajas-hoy'] });
+    },
+  });
+
+  const aprobarMut = useMutation({
+    mutationFn: () => cajasApi.aprobarCierre(id!),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['arqueo', id] });
+      qc.invalidateQueries({ queryKey: ['cajas-hoy'] });
+    },
+  });
+
+  const reabrirMut = useMutation({
+    mutationFn: () => cajasApi.reabrir(id!),
+    onSuccess: () => {
+      setConfirmarReapertura(false);
       qc.invalidateQueries({ queryKey: ['arqueo', id] });
       qc.invalidateQueries({ queryKey: ['cajas-hoy'] });
     },
@@ -79,8 +102,8 @@ export function CajaArqueoPage() {
             {caja.ruta_nombre && <p className="text-sm text-gray-500">{caja.ruta_nombre}</p>}
           </div>
           <Badge
-            label={caja.estado}
-            variant={caja.estado === 'Abierta' ? 'green' : 'gray'}
+            label={caja.estado === 'PendienteRevision' ? t('cajas.pendiente_revision') : caja.estado}
+            variant={badgeEstado[caja.estado]}
           />
         </div>
 
@@ -103,8 +126,10 @@ export function CajaArqueoPage() {
           </div>
         </div>
 
-        {/* Diferencia y cuadre: solo visible para admin */}
-        {isAdmin && caja.estado === 'Cerrada' && caja.diferencia_cierre !== null && (
+        {/* Diferencia y cuadre: solo visible para admin -- se calcula ya en
+            el cierre del cobrador, antes de que el admin la apruebe, para
+            que sea justo lo que tiene que revisar. */}
+        {isAdmin && (caja.estado === 'Cerrada' || caja.estado === 'PendienteRevision') && caja.diferencia_cierre !== null && (
           <div
             className={`rounded-lg p-4 border ${
               caja.estado_cuadre === 'Cuadrado'
@@ -120,6 +145,34 @@ export function CajaArqueoPage() {
             <p className="text-xs text-gray-500 mt-1">
               {t('cajas.declarado_por_cobrador', { monto: fmt(caja.monto_cierre_declarado ?? 0) })}
             </p>
+          </div>
+        )}
+
+        {/* Revisión del cierre: solo admin, solo mientras esté pendiente */}
+        {isAdmin && caja.estado === 'PendienteRevision' && (
+          <div className="border-t border-gray-100 pt-4 space-y-3">
+            <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+              <ShieldAlert size={14} />
+              {t('cajas.revisar_cierre')}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => aprobarMut.mutate()}
+                disabled={aprobarMut.isPending}
+                className="flex-1 justify-center flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+              >
+                {aprobarMut.isPending ? t('cajas.aprobando') : t('cajas.aprobar_cierre')}
+              </button>
+              <button
+                onClick={() => setConfirmarReapertura(true)}
+                className="flex-1 justify-center flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
+              >
+                {t('cajas.reabrir_caja')}
+              </button>
+            </div>
+            {aprobarMut.isError && (
+              <p className="text-xs text-red-500">{mensajeError(aprobarMut.error, t('cajas.error_aprobar_cierre'))}</p>
+            )}
           </div>
         )}
 
@@ -183,7 +236,7 @@ export function CajaArqueoPage() {
                 className="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
               <button
-                onClick={() => cerrarMut.mutate()}
+                onClick={() => setConfirmarCierre(true)}
                 disabled={!montoCierre || cerrarMut.isPending}
                 className="rounded-lg bg-gray-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-900 disabled:opacity-60"
               >
@@ -194,6 +247,9 @@ export function CajaArqueoPage() {
               <p className="text-xs text-gray-400 italic">
                 {t('cajas.cuadre_revisado_admin')}
               </p>
+            )}
+            {cerrarMut.isError && (
+              <p className="text-xs text-red-500">{mensajeError(cerrarMut.error, t('cajas.error_cerrar'))}</p>
             )}
           </div>
         )}
@@ -236,6 +292,61 @@ export function CajaArqueoPage() {
           </div>
         )}
       </div>
+
+      {/* Confirmar cierre: genérico a propósito -- no puede mencionar la
+          diferencia real, eso rompería el cierre ciego (el cobrador nunca
+          ve el monto esperado). */}
+      {confirmarCierre && (
+        <ModalOverlay>
+          <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl p-6 space-y-4 animate-fade-in">
+            <h2 className="text-lg font-bold text-gray-900">{t('cajas.confirmar_cierre_titulo')}</h2>
+            <p className="text-sm text-gray-600">
+              {t('cajas.confirmar_cierre_texto', { monto: fmt(parseFloat(montoCierre) || 0) })}
+            </p>
+            {cerrarMut.isError && (
+              <p className="text-xs text-red-500">{mensajeError(cerrarMut.error, t('cajas.error_cerrar'))}</p>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => cerrarMut.mutate()}
+                disabled={cerrarMut.isPending}
+                className="flex-1 justify-center flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-900 disabled:opacity-60"
+              >
+                {cerrarMut.isPending ? t('cajas.cerrando') : t('cajas.confirmar_y_cerrar')}
+              </button>
+              <button onClick={() => setConfirmarCierre(false)} className="btn-secondary">
+                {t('common.cancelar')}
+              </button>
+            </div>
+          </div>
+        </ModalOverlay>
+      )}
+
+      {/* Confirmar reapertura: la usa el admin, no el cobrador -- acá sí
+          puede mencionar la diferencia, ya la está viendo en pantalla. */}
+      {confirmarReapertura && (
+        <ModalOverlay>
+          <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl p-6 space-y-4 animate-fade-in">
+            <h2 className="text-lg font-bold text-gray-900">{t('cajas.reabrir_caja')}</h2>
+            <p className="text-sm text-gray-600">{t('cajas.confirmar_reapertura_texto')}</p>
+            {reabrirMut.isError && (
+              <p className="text-xs text-red-500">{mensajeError(reabrirMut.error, t('cajas.error_reabrir'))}</p>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => reabrirMut.mutate()}
+                disabled={reabrirMut.isPending}
+                className="flex-1 justify-center flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+              >
+                {reabrirMut.isPending ? t('cajas.reabriendo') : t('cajas.confirmar_reapertura')}
+              </button>
+              <button onClick={() => setConfirmarReapertura(false)} className="btn-secondary">
+                {t('common.cancelar')}
+              </button>
+            </div>
+          </div>
+        </ModalOverlay>
+      )}
     </div>
   );
 }

@@ -121,6 +121,7 @@ export const MESSAGES: Record<string, Entrada> = {
     en: 'There is no active cash register for that route. Start the workday first.',
   },
   cajas_no_encontrada: { es: 'Caja no encontrada', en: 'Cash register not found' },
+  cajas_no_pendiente_revision: { es: 'Esta caja no está pendiente de revisión', en: 'This cash register is not pending review' },
   cajas_empleado_no_encontrado: { es: 'El empleado seleccionado no existe o está inactivo', en: 'The selected employee does not exist or is inactive' },
   cajas_eliminar_solo_abierta: { es: 'Solo se puede eliminar una caja que siga Abierta', en: 'Only a caja that is still Open can be deleted' },
   cajas_eliminar_con_movimientos: { es: 'Esta caja ya tiene cobros o gastos registrados -- ciérrala en vez de eliminarla', en: 'This caja already has collections or expenses recorded -- close it instead of deleting it' },

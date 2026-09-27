@@ -124,7 +124,7 @@ export interface RegistrarCobroDto {
 
 // ─── Caja ─────────────────────────────────────────────────────────────────────
 
-export type EstadoCaja = 'Abierta' | 'Cerrada';
+export type EstadoCaja = 'Abierta' | 'PendienteRevision' | 'Cerrada';
 
 export interface Caja {
   id: string;

@@ -93,6 +93,19 @@ export class Caja {
   @Column({ type: 'enum', enum: EstadoCaja, default: EstadoCaja.ABIERTA })
   estado: EstadoCaja;
 
+  // Cierre ciego del cobrador -> PendienteRevision; el admin la aprueba
+  // (Cerrada, final) o la reabre (Abierta) -- estos dos quedan null hasta
+  // que aprueba, para tener constancia de quién y cuándo.
+  @Column({ type: 'uuid', nullable: true })
+  revisado_por_id: string;
+
+  @ManyToOne(() => Empleado)
+  @JoinColumn({ name: 'revisado_por_id' })
+  revisado_por: Empleado;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  fecha_revision: Date;
+
   @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
 

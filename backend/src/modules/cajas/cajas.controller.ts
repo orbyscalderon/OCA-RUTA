@@ -71,6 +71,28 @@ export class CajasController {
     return this.service.listarCajasDia(user.tenantId, fecha);
   }
 
+  @Post(':id/aprobar-cierre')
+  @HttpCode(HttpStatus.OK)
+  @RequierePermiso(Permiso.CAJAS_SUPERVISAR)
+  @ApiOperation({
+    summary: 'Aprueba el cierre ciego de una caja (queda Cerrada, final)',
+    description: 'Solo si está PendienteRevision -- el cierre del cobrador no es final hasta que un admin la revisa.',
+  })
+  aprobarCierre(@CurrentUser() user: JwtPayload, @Param('id', ParseUUIDPipe) id: string) {
+    return this.service.aprobarCierre(user.tenantId, user.empleadoId, id);
+  }
+
+  @Post(':id/reabrir')
+  @HttpCode(HttpStatus.OK)
+  @RequierePermiso(Permiso.CAJAS_SUPERVISAR)
+  @ApiOperation({
+    summary: 'Reabre una caja PendienteRevision por discrepancia (vuelve a Abierta)',
+    description: 'Para cuando el cierre declarado no coincide con lo esperado y el cobrador debe corregirlo -- borra el cierre anterior (monto declarado/diferencia/hora), puede volver a cerrarla más tarde.',
+  })
+  reabrir(@CurrentUser() user: JwtPayload, @Param('id', ParseUUIDPipe) id: string) {
+    return this.service.reabrir(user.tenantId, user.empleadoId, id);
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @RequierePermiso(Permiso.CAJAS_SUPERVISAR)

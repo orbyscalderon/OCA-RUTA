@@ -32,4 +32,12 @@ export const cajasApi = {
   // una apertura por error (cobrador/ruta equivocados, prueba).
   eliminar: (id: string) =>
     api.delete(`/cajas/${id}`).then((r) => r.data),
+
+  // El cierre ciego del cobrador deja la caja en PendienteRevision -- estas
+  // dos son las dos salidas posibles que tiene el admin.
+  aprobarCierre: (id: string) =>
+    api.post<Caja>(`/cajas/${id}/aprobar-cierre`).then((r) => r.data),
+
+  reabrir: (id: string) =>
+    api.post<Caja>(`/cajas/${id}/reabrir`).then((r) => r.data),
 };

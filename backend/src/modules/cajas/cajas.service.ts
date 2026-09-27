@@ -117,7 +117,7 @@ export class CajasService {
       const diferencia = dto.monto_cierre_declarado - montoEsperado;
 
       await tx.update(Caja, { id: dto.caja_id }, {
-        estado: EstadoCaja.CERRADA,
+        estado: EstadoCaja.PENDIENTE_REVISION,
         monto_cierre_declarado: dto.monto_cierre_declarado,
         diferencia_cierre: Math.round(diferencia * 100) / 100,
         latitud_cierre: dto.latitud ?? null,
@@ -145,7 +145,7 @@ export class CajasService {
       );
 
       this.logger.log(
-        `Caja cerrada: id=${dto.caja_id} declarado=${dto.monto_cierre_declarado} ` +
+        `Caja pendiente de revisión: id=${dto.caja_id} declarado=${dto.monto_cierre_declarado} ` +
         `esperado=${montoEsperado} diferencia=${diferencia}`,
       );
 
@@ -155,6 +155,48 @@ export class CajasService {
         caja_id: dto.caja_id,
       };
     });
+  }
+
+  // ─── REVISIÓN DEL CIERRE (solo Admin/Supervisor) ───────────────────────────
+  // El cierre del cobrador deja la caja en PendienteRevision -- no es final
+  // hasta que un admin la aprueba (Cerrada) o, si algo no cuadra, la reabre
+  // para que el cobrador la corrija (vuelve a Abierta, puede seguir
+  // registrando cobros/gastos y cerrarla de nuevo más tarde).
+
+  async aprobarCierre(tenantId: string, adminEmpleadoId: string, cajaId: string): Promise<Caja> {
+    const caja = await this.cajaRepo.findOne({
+      where: { id: cajaId, tenant_id: tenantId, estado: EstadoCaja.PENDIENTE_REVISION },
+    });
+    if (!caja) throw new NotFoundException(msg('cajas_no_pendiente_revision'));
+
+    caja.estado = EstadoCaja.CERRADA;
+    caja.revisado_por_id = adminEmpleadoId;
+    caja.fecha_revision = new Date();
+    const guardada = await this.cajaRepo.save(caja);
+
+    this.logger.log(`Cierre de caja aprobado: id=${cajaId} por=${adminEmpleadoId}`);
+    return guardada;
+  }
+
+  async reabrir(tenantId: string, adminEmpleadoId: string, cajaId: string): Promise<Caja> {
+    const caja = await this.cajaRepo.findOne({
+      where: { id: cajaId, tenant_id: tenantId, estado: EstadoCaja.PENDIENTE_REVISION },
+    });
+    if (!caja) throw new NotFoundException(msg('cajas_no_pendiente_revision'));
+
+    caja.estado = EstadoCaja.ABIERTA;
+    // Se limpia lo del cierre anterior -- si el cobrador la vuelve a cerrar,
+    // es un cierre nuevo, no queda mezclado con el declarado/rechazado de antes.
+    caja.monto_cierre_declarado = null;
+    caja.diferencia_cierre = null;
+    caja.hora_cierre = null;
+    caja.nota_cierre = null;
+    caja.revisado_por_id = adminEmpleadoId;
+    caja.fecha_revision = new Date();
+    const guardada = await this.cajaRepo.save(caja);
+
+    this.logger.log(`Caja reabierta por discrepancia: id=${cajaId} por=${adminEmpleadoId}`);
+    return guardada;
   }
 
   // ─── REGISTRAR GASTO DE RUTA ───────────────────────────────────────────────
@@ -291,11 +333,12 @@ export class CajasService {
 
   /**
    * Cajas para revisar en el panel: todas las de la fecha pedida (para ver
-   * historial, cerradas incluidas) MÁS cualquier caja que siga Abierta sin
-   * importar cuándo se abrió -- una caja no se cierra hasta que el cobrador
-   * la cuadra, así que puede seguir vigente varios días después de su
-   * fecha de apertura y no debe "desaparecer" de esta pantalla mientras
-   * tanto.
+   * historial, cerradas incluidas) MÁS cualquier caja que siga Abierta o
+   * PendienteRevision sin importar cuándo se abrió -- ninguna de esas dos
+   * es un estado final, pueden seguir vigentes varios días después de su
+   * fecha de apertura y no deben "desaparecer" de esta pantalla mientras
+   * tanto (la pendiente de revisión, en particular, es justamente lo que
+   * el admin tiene que ver para aprobarla o reabrirla).
    */
   async listarCajasDia(tenantId: string, fecha?: string): Promise<Caja[]> {
     const f = fecha ?? fechaHoyEnZona(await this.zonaHorariaService.obtener(tenantId));
@@ -304,7 +347,10 @@ export class CajasService {
       .leftJoinAndSelect('c.cobrador', 'cobrador')
       .leftJoinAndSelect('c.ruta', 'ruta')
       .where('c.tenant_id = :tenantId', { tenantId })
-      .andWhere('(c.fecha = :f OR c.estado = :abierta)', { f, abierta: EstadoCaja.ABIERTA })
+      .andWhere('(c.fecha = :f OR c.estado IN (:...vigentes))', {
+        f,
+        vigentes: [EstadoCaja.ABIERTA, EstadoCaja.PENDIENTE_REVISION],
+      })
       .orderBy('c.fecha', 'DESC')
       .addOrderBy('c.hora_apertura', 'ASC')
       .getMany();

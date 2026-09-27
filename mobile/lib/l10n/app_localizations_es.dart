@@ -243,6 +243,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get cajaCerradaCorrectamente => 'Caja cerrada correctamente';
 
   @override
+  String get confirmarCierreTitulo => 'Confirmar cierre de caja';
+
+  @override
+  String confirmarCierreTexto(String monto) {
+    return 'Vas a declarar $monto como el monto físico que tenés en caja ahora mismo. Una vez enviado no podés modificarlo -- un administrador va a revisar el cierre.';
+  }
+
+  @override
+  String get confirmarYCerrar => 'Sí, cerrar caja';
+
+  @override
   String get copyrightOcaHoldingCorto =>
       '© 2026 OCA HOLDING GROUP LLC. Todos los derechos reservados.';
 
