@@ -148,21 +148,27 @@ export function CajaArqueoPage() {
           </div>
         )}
 
-        {/* Revisión del cierre: solo admin, solo mientras esté pendiente */}
-        {isAdmin && caja.estado === 'PendienteRevision' && (
+        {/* Revisión del cierre: solo admin. Aprobar solo tiene sentido
+            mientras está pendiente; reabrir sirve tanto ahí como en una ya
+            Cerrada -- el admin pudo aprobarla por error, o notar la
+            discrepancia recién después. Reabrir nunca toca los
+            cobros/gastos reales, solo el cierre declarado. */}
+        {isAdmin && (caja.estado === 'PendienteRevision' || caja.estado === 'Cerrada') && (
           <div className="border-t border-gray-100 pt-4 space-y-3">
             <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
               <ShieldAlert size={14} />
               {t('cajas.revisar_cierre')}
             </p>
             <div className="flex gap-3">
-              <button
-                onClick={() => aprobarMut.mutate()}
-                disabled={aprobarMut.isPending}
-                className="flex-1 justify-center flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
-              >
-                {aprobarMut.isPending ? t('cajas.aprobando') : t('cajas.aprobar_cierre')}
-              </button>
+              {caja.estado === 'PendienteRevision' && (
+                <button
+                  onClick={() => aprobarMut.mutate()}
+                  disabled={aprobarMut.isPending}
+                  className="flex-1 justify-center flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+                >
+                  {aprobarMut.isPending ? t('cajas.aprobando') : t('cajas.aprobar_cierre')}
+                </button>
+              )}
               <button
                 onClick={() => setConfirmarReapertura(true)}
                 className="flex-1 justify-center flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
@@ -328,7 +334,9 @@ export function CajaArqueoPage() {
         <ModalOverlay>
           <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl p-6 space-y-4 animate-fade-in">
             <h2 className="text-lg font-bold text-gray-900">{t('cajas.reabrir_caja')}</h2>
-            <p className="text-sm text-gray-600">{t('cajas.confirmar_reapertura_texto')}</p>
+            <p className="text-sm text-gray-600">
+              {caja.estado === 'Cerrada' ? t('cajas.confirmar_reapertura_cerrada_texto') : t('cajas.confirmar_reapertura_texto')}
+            </p>
             {reabrirMut.isError && (
               <p className="text-xs text-red-500">{mensajeError(reabrirMut.error, t('cajas.error_reabrir'))}</p>
             )}

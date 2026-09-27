@@ -86,8 +86,8 @@ export class CajasController {
   @HttpCode(HttpStatus.OK)
   @RequierePermiso(Permiso.CAJAS_SUPERVISAR)
   @ApiOperation({
-    summary: 'Reabre una caja PendienteRevision por discrepancia (vuelve a Abierta)',
-    description: 'Para cuando el cierre declarado no coincide con lo esperado y el cobrador debe corregirlo -- borra el cierre anterior (monto declarado/diferencia/hora), puede volver a cerrarla más tarde.',
+    summary: 'Reabre una caja PendienteRevision o ya Cerrada por discrepancia (vuelve a Abierta)',
+    description: 'Para cuando el cierre declarado no coincide con lo esperado y el cobrador debe corregirlo, incluso si ya se había aprobado por error -- borra el cierre anterior (monto declarado/diferencia/hora), puede volver a cerrarla más tarde. Los cobros/gastos reales de la caja no se tocan.',
   })
   reabrir(@CurrentUser() user: JwtPayload, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.reabrir(user.tenantId, user.empleadoId, id);

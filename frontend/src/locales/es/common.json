@@ -773,6 +773,7 @@
     "error_reabrir": "No se pudo reabrir la caja",
     "confirmar_reapertura": "Sí, reabrir caja",
     "confirmar_reapertura_texto": "La caja vuelve a quedar Abierta -- se borra el cierre declarado (monto, diferencia, hora) y el cobrador puede seguir registrando cobros/gastos y cerrarla de nuevo más tarde.",
+    "confirmar_reapertura_cerrada_texto": "Esta caja ya estaba Cerrada (aprobada) -- al reabrirla vuelve a quedar Abierta y se borra el cierre declarado. Los cobros y gastos ya registrados NO se tocan, siguen intactos.",
     "registrar_gasto": "Registrar gasto",
     "monto_gasto_placeholder": "Monto ({{simbolo}})",
     "descripcion_gasto_placeholder": "Descripción (gasolina, reparación, etc.)",

@@ -3,7 +3,7 @@ import {
   Injectable, Logger, NotFoundException,
 } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 import { Caja } from './entities/caja.entity';
 import { Transaccion } from './entities/transaccion.entity';
 import { AbrirCajaDto, ArqueoCajaResponseDto, CerrarCajaDto, RegistrarGastoDto } from './dto/cajas.dto';
@@ -179,8 +179,13 @@ export class CajasService {
   }
 
   async reabrir(tenantId: string, adminEmpleadoId: string, cajaId: string): Promise<Caja> {
+    // También se puede reabrir una ya Cerrada (aprobada) -- el admin pudo
+    // haber aprobado por error, o encontrar la discrepancia recién después.
+    // Los cobros/gastos reales de la caja NO se tocan (siguen intactos,
+    // el cobrador solo retoma desde ahí); lo único que se revierte es el
+    // cierre declarado.
     const caja = await this.cajaRepo.findOne({
-      where: { id: cajaId, tenant_id: tenantId, estado: EstadoCaja.PENDIENTE_REVISION },
+      where: { id: cajaId, tenant_id: tenantId, estado: In([EstadoCaja.PENDIENTE_REVISION, EstadoCaja.CERRADA]) },
     });
     if (!caja) throw new NotFoundException(msg('cajas_no_pendiente_revision'));
 

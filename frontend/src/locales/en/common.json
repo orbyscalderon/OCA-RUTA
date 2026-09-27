@@ -773,6 +773,7 @@
     "error_reabrir": "Could not reopen the cash register",
     "confirmar_reapertura": "Yes, reopen",
     "confirmar_reapertura_texto": "The cash register goes back to Open -- the declared closing (amount, difference, time) is cleared and the collector can keep recording collections/expenses and close it again later.",
+    "confirmar_reapertura_cerrada_texto": "This cash register was already Closed (approved) -- reopening it sets it back to Open and clears the declared closing. Collections and expenses already recorded are NOT touched, they stay intact.",
     "registrar_gasto": "Record expense",
     "monto_gasto_placeholder": "Amount ({{simbolo}})",
     "descripcion_gasto_placeholder": "Description (fuel, repair, etc.)",
