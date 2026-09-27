@@ -573,18 +573,31 @@ export class PrestamosService {
     clienteId?: string,
     cobradorId?: string,
   ) {
-    const where: Record<string, unknown> = { tenant_id: tenantId };
-    if (estado) where.estado = estado;
-    if (clienteId) where.cliente_id = clienteId;
-    if (cobradorId) where.cobrador_id = cobradorId;
+    // Mismo motivo que en obtener(): cobrador_id del préstamo solo se llena
+    // al aprobar, así que filtrar solo por p.cobrador_id le escondería al
+    // cobrador sus propias solicitudes Pendientes -- se cae a la ruta
+    // mientras no tenga cobrador_id todavía.
+    const qb = this.prestamoRepo.createQueryBuilder('p')
+      .leftJoinAndSelect('p.cliente', 'cliente')
+      .leftJoinAndSelect('p.cuotas', 'cuotas')
+      .where('p.tenant_id = :tenantId', { tenantId })
+      .orderBy('p.created_at', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
 
-    const [data, total] = await this.prestamoRepo.findAndCount({
-      where,
-      relations: ['cliente', 'cuotas'],
-      order: { created_at: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    if (estado) qb.andWhere('p.estado = :estado', { estado });
+    if (clienteId) qb.andWhere('p.cliente_id = :clienteId', { clienteId });
+    if (cobradorId) {
+      qb.andWhere(
+        `(p.cobrador_id = :cobradorId
+          OR (p.cobrador_id IS NULL AND p.ruta_id IN (
+            SELECT id FROM rutas WHERE tenant_id = :tenantId AND cobrador_id = :cobradorId
+          )))`,
+        { cobradorId },
+      );
+    }
+
+    const [data, total] = await qb.getManyAndCount();
 
     // La app móvil del cobrador (única consumidora de este endpoint con
     // cobradorId fijo) necesita la lista en el orden de visita configurado
@@ -625,13 +638,28 @@ export class PrestamosService {
   }
 
   async obtener(tenantId: string, prestamoId: string, cobradorId?: string) {
-    const where: Record<string, unknown> = { id: prestamoId, tenant_id: tenantId };
-    if (cobradorId) where.cobrador_id = cobradorId;
+    // cobrador_id del préstamo solo se llena al APROBAR (ver aprobar()) --
+    // una solicitud recién creada, todavía Pendiente, no lo tiene. Si acá
+    // solo se filtrara por p.cobrador_id, el cobrador que la acaba de
+    // solicitar nunca podría verla (404 "no encontrado" justo después de
+    // crearla). Mientras esté sin cobrador_id, se cae a la ruta: si esa
+    // ruta es suya, puede verla igual.
+    const qb = this.prestamoRepo.createQueryBuilder('p')
+      .leftJoinAndSelect('p.cliente', 'cliente')
+      .where('p.id = :id', { id: prestamoId })
+      .andWhere('p.tenant_id = :tenantId', { tenantId });
 
-    const prestamo = await this.prestamoRepo.findOne({
-      where,
-      relations: ['cliente'],
-    });
+    if (cobradorId) {
+      qb.andWhere(
+        `(p.cobrador_id = :cobradorId
+          OR (p.cobrador_id IS NULL AND p.ruta_id IN (
+            SELECT id FROM rutas WHERE tenant_id = :tenantId AND cobrador_id = :cobradorId
+          )))`,
+        { cobradorId },
+      );
+    }
+
+    const prestamo = await qb.getOne();
     if (!prestamo) throw new NotFoundException(msg('prestamos_no_encontrado'));
 
     const cuotas = await this.cuotaRepo.find({
