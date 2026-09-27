@@ -76,6 +76,11 @@ export const PERMISOS_POR_ROL: Record<Rol, Permiso[]> = {
 
 /** Permisos efectivos de un usuario: personalizados si los tiene, si no los de su rol base. */
 export function permisosEfectivos(rol: Rol, permisosCustom: string[] | null | undefined): Permiso[] {
-  if (permisosCustom && permisosCustom.length > 0) return permisosCustom as Permiso[];
+  // null/undefined = nunca se personalizó, usa el set del rol. Un array
+  // vacío es una personalización real ("le saqué todos los permisos a
+  // propósito") y antes se trataba exactamente igual que null -- silencioso
+  // rollback al set completo del rol justo cuando el admin quería lo
+  // opuesto (dejarlo sin poder hacer nada).
+  if (permisosCustom !== null && permisosCustom !== undefined) return permisosCustom as Permiso[];
   return PERMISOS_POR_ROL[rol] ?? [];
 }

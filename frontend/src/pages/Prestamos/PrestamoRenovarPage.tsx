@@ -37,9 +37,14 @@ export function PrestamoRenovarPage() {
     enabled: !!id,
   });
 
+  // GET /usuarios exige empleados_ver -- sin este chequeo, cualquiera que
+  // pueda entrar acá pero no lo tenga (ver mismo caso en
+  // PrestamoDetallePage.tsx) dispara un 403 en silencio.
+  const puedeVerEmpleados = user?.permisos?.includes('empleados_ver') ?? false;
   const { data: cobradores = [] } = useQuery({
     queryKey: ['empleados'],
     queryFn: empleadosApi.listar,
+    enabled: puedeVerEmpleados,
     select: (data) => data.filter((e) => e.activo && e.rol === 'cobrador_tenant'),
   });
 

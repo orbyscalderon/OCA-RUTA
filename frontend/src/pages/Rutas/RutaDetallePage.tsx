@@ -19,6 +19,7 @@ import { clientesApi } from '@/api/clientes.api';
 import { empleadosApi } from '@/api/empleados.api';
 import { Badge } from '@/components/common/Badge';
 import { Table } from '@/components/common/Table';
+import { useAuth } from '@/hooks/useAuth';
 import type { Cliente, HistorialCobradorRuta } from '@/types';
 import { mensajeError } from '@/utils/errores';
 
@@ -26,6 +27,7 @@ export function RutaDetallePage() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const qc = useQueryClient();
+  const { user } = useAuth();
   const [cobradorId, setCobradorId] = useState('');
   const [ordenLocal, setOrdenLocal] = useState<Cliente[]>([]);
   const [moviendoId, setMoviendoId] = useState<string | null>(null);
@@ -47,9 +49,14 @@ export function RutaDetallePage() {
   // instantáneo; se resincroniza cada vez que el servidor manda datos nuevos.
   useEffect(() => setOrdenLocal(clientes), [clientes]);
 
+  // GET /usuarios exige empleados_ver -- sin este chequeo, cualquiera que
+  // pueda entrar acá pero no lo tenga dispara un 403 en silencio (mismo
+  // caso ya visto en PrestamoDetallePage.tsx).
+  const puedeVerEmpleados = user?.permisos?.includes('empleados_ver') ?? false;
   const { data: cobradores = [] } = useQuery({
     queryKey: ['empleados'],
     queryFn: empleadosApi.listar,
+    enabled: puedeVerEmpleados,
     select: (data) => data.filter((e) => e.activo && e.rol === 'cobrador_tenant'),
   });
 

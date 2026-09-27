@@ -8,6 +8,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, MapPin, CheckCircle2, LocateFixed } from 'lucide-react';
 import { rutasApi } from '@/api/rutas.api';
 import { empleadosApi } from '@/api/empleados.api';
+import { useAuth } from '@/hooks/useAuth';
 import { mensajeError } from '@/utils/errores';
 
 const schema = z.object({
@@ -23,6 +24,7 @@ export function RutaNuevaPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { user } = useAuth();
 
   const {
     register,
@@ -33,9 +35,12 @@ export function RutaNuevaPage() {
     defaultValues: { nombre: '', descripcion: '', direccion: '', cobrador_id: '' },
   });
 
+  // GET /usuarios exige empleados_ver -- mismo caso que en PrestamoDetallePage.tsx.
+  const puedeVerEmpleados = user?.permisos?.includes('empleados_ver') ?? false;
   const { data: cobradores = [] } = useQuery({
     queryKey: ['empleados'],
     queryFn: empleadosApi.listar,
+    enabled: puedeVerEmpleados,
     select: (data) => data.filter((e) => e.activo && e.rol === 'cobrador_tenant'),
   });
 

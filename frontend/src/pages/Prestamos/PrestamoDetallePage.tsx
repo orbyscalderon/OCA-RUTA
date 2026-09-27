@@ -55,9 +55,15 @@ export function PrestamoDetallePage() {
     enabled: !!id,
   });
 
+  // GET /usuarios exige empleados_ver -- un cobrador normal (que sí puede
+  // entrar acá, PRESTAMOS_VER no exige más) no lo tiene, disparaba un 403
+  // en silencio en cada préstamo que abría. El dropdown de cobradores solo
+  // lo usa quien aprueba, así que alcanza con no pedirlo si no se tiene.
+  const puedeVerEmpleados = user?.permisos?.includes('empleados_ver') ?? false;
   const { data: cobradores = [] } = useQuery({
     queryKey: ['empleados'],
     queryFn: empleadosApi.listar,
+    enabled: puedeVerEmpleados,
     // admin_tenant y supervisor_tenant tambien pueden abrir su propia caja y
     // cobrar (ver @Roles en cajas.controller.ts) -- un negocio con un solo
     // admin, sin cobradores contratados todavia, necesita poder asignarse el

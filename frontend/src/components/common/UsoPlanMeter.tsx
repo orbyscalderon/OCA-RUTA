@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { planesApi, type UsoPlan } from '@/api/planes.api';
+import { useAuth } from '@/hooks/useAuth';
+import { Permiso } from '@/utils/permisos';
 import { clsx } from 'clsx';
 import { TrendingUp } from 'lucide-react';
 
@@ -16,13 +18,23 @@ function Bar({ used, limit, color }: { used: number; limit: number; color: strin
 
 export function UsoPlanMeter() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  // GET /reportes/uso-plan exige reportes_avanzados -- se usa en Dashboard y
+  // Config, páginas que ya exigen otro permiso para entrar (reportes_admin /
+  // tenant_ver_config) que no necesariamente incluye este. Sin este chequeo,
+  // alguien con uno mas no el otro (ej. permisos personalizados a mano, ver
+  // el caso de "cobrador demo" en esta misma sesión) dispara un 403 en
+  // silencio cada vez que este componente se monta.
+  const tienePermiso = user?.permisos?.includes(Permiso.REPORTES_AVANZADOS) ?? false;
+
   const { data: uso } = useQuery<UsoPlan>({
     queryKey: ['uso-plan'],
     queryFn: planesApi.usoActual,
     staleTime: 60_000,
+    enabled: tienePermiso,
   });
 
-  if (!uso) return null;
+  if (!tienePermiso || !uso) return null;
 
   const cerca = uso.pct_prestamos_usados >= 80;
   const lleno = uso.pct_prestamos_usados >= 100;
