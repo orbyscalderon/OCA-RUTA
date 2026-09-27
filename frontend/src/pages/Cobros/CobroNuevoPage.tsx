@@ -30,7 +30,7 @@ export function CobroNuevoPage() {
 
   // Cajas abiertas: un cobrador solo ve las suyas (/cajas/dia le está vedado,
   // mostraría las de todo el tenant).
-  const { data: cajas = [] } = useQuery({
+  const { data: cajas = [], isError: errorCajas, error: errorCajasObj } = useQuery({
     queryKey: ['cajas-hoy', esCobrador],
     queryFn: () => (esCobrador ? cajasApi.misCajasActivas() : cajasApi.listarDelDia()),
     select: (data) => data.filter((c) => c.estado === 'Abierta'),
@@ -320,7 +320,14 @@ export function CobroNuevoPage() {
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
               {t('cobros.paso3_caja')}
             </label>
-            {cajasRelevantes.length === 0 ? (
+            {errorCajas ? (
+              // Un 403 acá (ej. al cobrador le falta el permiso cajas_operar)
+              // se veía igual que "no tiene caja abierta" -- mensaje distinto
+              // para no hacer perder tiempo buscando una caja que sí existe.
+              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+                {mensajeError(errorCajasObj, t('cobros.error_cargar_cajas'))}
+              </p>
+            ) : cajasRelevantes.length === 0 ? (
               <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
                 {t('cobros.sin_caja_abierta')}{' '}
                 <Link to="/cajas" className="underline font-medium">{t('cobros.ver_cajas')}</Link>

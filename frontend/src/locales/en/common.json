@@ -1070,6 +1070,7 @@
     "prestamo_resumen": "{{modalidad}} · {{cuotas}} installments · #{{id}}",
     "paso3_caja": "3. Assigned collector's cash register",
     "sin_caja_abierta": "The collector assigned to this loan does not have a cash register open today.",
+    "error_cargar_cajas": "Could not load your cash register -- you may be missing permission to operate it. Ask your admin to check.",
     "seleccionar_caja": "— Select cash register —",
     "apertura": "opening {{monto}}",
     "paso4_monto": "4. Amount collected ({{simbolo}})",

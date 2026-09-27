@@ -1070,6 +1070,7 @@
     "prestamo_resumen": "{{modalidad}} · {{cuotas}} cuotas · #{{id}}",
     "paso3_caja": "3. Caja del cobrador asignado",
     "sin_caja_abierta": "El cobrador asignado a este préstamo no tiene una caja abierta hoy.",
+    "error_cargar_cajas": "No se pudo cargar tu caja -- puede que te falte el permiso para operarla. Pedile al admin que lo revise.",
     "seleccionar_caja": "— Seleccionar caja —",
     "apertura": "apertura {{monto}}",
     "paso4_monto": "4. Monto cobrado ({{simbolo}})",
