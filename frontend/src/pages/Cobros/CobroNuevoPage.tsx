@@ -69,6 +69,24 @@ export function CobroNuevoPage() {
     }
   }, [prestamoDirecto]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Si se llega con cliente_id en la URL (ej. desde "Cobrar" en Mi Ruta),
+  // clienteIdSel ya arranca seteado -- el bloque de arriba nunca corre
+  // (depende de prestamoId) y el campo "Buscar cliente" se queda vacío para
+  // siempre aunque el cliente y su préstamo ya estén elegidos por debajo,
+  // dando la sensación de que no se seleccionó nada.
+  const clienteIdParam = params.get('cliente_id');
+  const { data: clienteDirecto } = useQuery({
+    queryKey: ['cliente-directo', clienteIdParam],
+    queryFn: () => clientesApi.obtener(clienteIdParam!),
+    enabled: !!clienteIdParam && !clienteSearch,
+  });
+
+  useEffect(() => {
+    if (clienteDirecto && !clienteSearch) {
+      setClienteSearch(`${clienteDirecto.nombre} ${clienteDirecto.apellido}`.trim());
+    }
+  }, [clienteDirecto]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const prestamoSel = prestamosResp?.find((p) => p.id === prestamoId);
 
   // Cuotas del préstamo elegido, para sugerir el monto a cobrar.
