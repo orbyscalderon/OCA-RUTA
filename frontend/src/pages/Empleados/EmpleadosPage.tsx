@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { PlusCircle, UserCheck, UserX, KeyRound, ShieldCheck, X, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { PlusCircle, UserCheck, UserX, KeyRound, ShieldCheck, Pencil, X, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { empleadosApi } from '@/api/empleados.api';
 import { Badge } from '@/components/common/Badge';
 import { ModalOverlay } from '@/components/common/ModalOverlay';
@@ -50,6 +50,8 @@ export function EmpleadosPage() {
   const [permisosTarget, setPermisosTarget] = useState<Empleado | null>(null);
   const [permisosSeleccionados, setPermisosSeleccionados] = useState<Set<string>>(new Set());
   const [personalizado, setPersonalizado] = useState(false);
+  const [editTarget, setEditTarget] = useState<Empleado | null>(null);
+  const [editForm, setEditForm] = useState({ nombre: '', apellido: '', rol: 'cobrador_tenant', cedula: '', telefono: '' });
 
   const { data: empleados = [], isLoading } = useQuery({
     queryKey: ['empleados'],
@@ -93,6 +95,30 @@ export function EmpleadosPage() {
       setPermisosTarget(null);
     },
   });
+
+  const editarMut = useMutation({
+    mutationFn: (dto: { nombre: string; apellido: string; rol: string; cedula?: string; telefono?: string }) =>
+      empleadosApi.actualizar(editTarget!.id, dto),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['empleados'] });
+      setEditTarget(null);
+    },
+  });
+
+  const abrirEditar = (emp: Empleado) => {
+    setEditTarget(emp);
+    setEditForm({
+      nombre: emp.nombre,
+      apellido: emp.apellido,
+      rol: emp.rol,
+      cedula: emp.cedula ?? '',
+      telefono: emp.telefono ?? '',
+    });
+  };
+
+  const editarErr = editarMut.isError
+    ? mensajeError(editarMut.error, t('empleados.error_editar'))
+    : null;
 
   const abrirPermisos = (emp: Empleado) => {
     setPermisosTarget(emp);
@@ -168,6 +194,13 @@ export function EmpleadosPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 justify-end">
+                      <button
+                        onClick={() => abrirEditar(emp)}
+                        title={t('empleados.editar')}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                      >
+                        <Pencil size={15} />
+                      </button>
                       <button
                         onClick={() => toggleMut.mutate({ id: emp.id, activo: !emp.activo })}
                         title={emp.activo ? t('empleados.desactivar') : t('empleados.activar')}
@@ -271,6 +304,110 @@ export function EmpleadosPage() {
                   {crearMut.isPending ? t('empleados.creando') : t('empleados.crear')}
                 </button>
                 <button type="button" onClick={() => { setShowModal(false); reset(); }} className="btn-secondary">
+                  {t('empleados.cancelar')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </ModalOverlay>
+      )}
+
+      {/* Modal editar empleado */}
+      {editTarget && (
+        <ModalOverlay>
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 space-y-5 animate-fade-in overflow-y-auto max-h-[90vh]">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">{t('empleados.modal_editar_titulo')}</h2>
+              <button onClick={() => setEditTarget(null)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100" aria-label={t('empleados.cerrar')}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                editarMut.mutate({
+                  nombre: editForm.nombre,
+                  apellido: editForm.apellido,
+                  rol: editForm.rol,
+                  cedula: editForm.cedula || undefined,
+                  telefono: editForm.telefono || undefined,
+                });
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('empleados.email')}</label>
+                <input value={editTarget.email} disabled className="input-field bg-gray-50 text-gray-400" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('empleados.nombre')} <span className="text-red-400">*</span></label>
+                  <input
+                    value={editForm.nombre}
+                    onChange={(e) => setEditForm((f) => ({ ...f, nombre: e.target.value }))}
+                    className="input-field"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('empleados.apellido')} <span className="text-red-400">*</span></label>
+                  <input
+                    value={editForm.apellido}
+                    onChange={(e) => setEditForm((f) => ({ ...f, apellido: e.target.value }))}
+                    className="input-field"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('empleados.rol')} <span className="text-red-400">*</span></label>
+                <select
+                  value={editForm.rol}
+                  onChange={(e) => setEditForm((f) => ({ ...f, rol: e.target.value }))}
+                  className="input-field"
+                >
+                  <option value="cobrador_tenant">{t('empleados.rol_cobrador')}</option>
+                  <option value="supervisor_tenant">{t('empleados.rol_supervisor')}</option>
+                  <option value="admin_tenant">{t('empleados.rol_admin')}</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{tipoDoc.etiqueta}</label>
+                  <input
+                    value={editForm.cedula}
+                    onChange={(e) => setEditForm((f) => ({ ...f, cedula: e.target.value }))}
+                    className="input-field"
+                    placeholder={tipoDoc.placeholder}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('empleados.telefono')}</label>
+                  <input
+                    value={editForm.telefono}
+                    onChange={(e) => setEditForm((f) => ({ ...f, telefono: e.target.value }))}
+                    className="input-field"
+                    placeholder="809-000-0000"
+                  />
+                </div>
+              </div>
+
+              {editarErr && (
+                <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2">
+                  <AlertCircle size={14} className="text-red-500" />
+                  <p className="text-xs text-red-700">{editarErr}</p>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <button type="submit" disabled={editarMut.isPending} className="btn-primary flex-1 justify-center">
+                  {editarMut.isPending ? t('empleados.actualizando') : t('empleados.guardar')}
+                </button>
+                <button type="button" onClick={() => setEditTarget(null)} className="btn-secondary">
                   {t('empleados.cancelar')}
                 </button>
               </div>

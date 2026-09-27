@@ -45,6 +45,23 @@ export class ToggleActivoDto {
   activo: boolean;
 }
 
+export class ActualizarEmpleadoDto {
+  @IsString() @IsNotEmpty() @Length(1, 100)
+  nombre: string;
+
+  @IsString() @IsNotEmpty() @Length(1, 100)
+  apellido: string;
+
+  @IsEnum([Rol.COBRADOR_TENANT, Rol.SUPERVISOR_TENANT, Rol.ADMIN_TENANT])
+  rol: Rol;
+
+  @IsOptional() @IsString() @Length(0, 20)
+  cedula?: string;
+
+  @IsOptional() @IsString() @Length(0, 30)
+  telefono?: string;
+}
+
 /* ── Service ─────────────────────────────────────────────────────────────── */
 
 @Injectable()
@@ -128,6 +145,45 @@ export class UsuariosService {
         activo: empleado.activo,
       };
     });
+  }
+
+  async actualizar(tenantId: string, empleadoId: string, dto: ActualizarEmpleadoDto) {
+    const empleado = await this.empleadoRepo.findOne({
+      where: { id: empleadoId, tenant_id: tenantId },
+      relations: ['usuario'],
+    });
+    if (!empleado) throw new NotFoundException(msg('usuarios_empleado_no_encontrado'));
+
+    if (dto.cedula) {
+      const existeCedula = await this.empleadoRepo.findOne({
+        where: { tenant_id: tenantId, cedula: dto.cedula },
+      });
+      if (existeCedula && existeCedula.id !== empleadoId) {
+        throw new ConflictException(msg('usuarios_cedula_duplicada'));
+      }
+    }
+
+    empleado.nombre = dto.nombre;
+    empleado.apellido = dto.apellido;
+    empleado.cedula = dto.cedula ?? null;
+    empleado.telefono = dto.telefono ?? null;
+    await this.empleadoRepo.save(empleado);
+
+    if (empleado.usuario && empleado.usuario.rol !== dto.rol) {
+      empleado.usuario.rol = dto.rol;
+      await this.usuarioRepo.save(empleado.usuario);
+    }
+
+    return {
+      id: empleado.id,
+      nombre: empleado.nombre,
+      apellido: empleado.apellido,
+      email: empleado.usuario?.email,
+      rol: empleado.usuario?.rol,
+      cedula: empleado.cedula,
+      telefono: empleado.telefono,
+      activo: empleado.activo,
+    };
   }
 
   async toggleActivo(tenantId: string, empleadoId: string, activo: boolean) {

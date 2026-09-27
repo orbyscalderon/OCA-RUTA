@@ -16,6 +16,14 @@ export const empleadosApi = {
     telefono?: string;
   }) => api.post<Empleado>('/usuarios', dto).then((r) => r.data),
 
+  actualizar: (id: string, dto: {
+    nombre: string;
+    apellido: string;
+    rol: string;
+    cedula?: string;
+    telefono?: string;
+  }) => api.patch<Empleado>(`/usuarios/${id}`, dto).then((r) => r.data),
+
   toggleActivo: (id: string, activo: boolean) =>
     api.patch(`/usuarios/${id}/activo`, { activo }).then((r) => r.data),
 

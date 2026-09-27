@@ -3,7 +3,7 @@ import {
   Patch, Post, UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { UsuariosService, CrearEmpleadoDto } from './usuarios.service';
+import { UsuariosService, CrearEmpleadoDto, ActualizarEmpleadoDto } from './usuarios.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermisosGuard } from '../../common/guards/permisos.guard';
 import { RequierePermiso } from '../../common/decorators/permisos.decorator';
@@ -49,6 +49,17 @@ export class UsuariosController {
   @ApiOperation({ summary: 'Crear cobrador o supervisor' })
   crear(@CurrentUser() user: JwtPayload, @Body() dto: CrearEmpleadoDto) {
     return this.service.crear(user.tenantId, dto);
+  }
+
+  @Patch(':id')
+  @RequierePermiso(Permiso.EMPLEADOS_GESTIONAR)
+  @ApiOperation({ summary: 'Editar datos de un empleado (nombre, apellido, cédula, teléfono, rol)' })
+  actualizar(
+    @CurrentUser() user: JwtPayload,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ActualizarEmpleadoDto,
+  ) {
+    return this.service.actualizar(user.tenantId, id, dto);
   }
 
   @Patch(':id/activo')
