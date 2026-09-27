@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t-pro">
   <title id="t-pro">Plan Pro</title>
-  <rect width="64" height="64" rx="16" fill="#1E3A8A" />
-  <circle cx="14" cy="46" r="3.5" fill="#FFFFFF" />
-  <path d="M14,46 C14,30 26,34 32,27" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
-  <path d="M42,13 L45,20.3 L53,21.1 L47,26.4 L48.7,34.2 L42,30.1 L35.3,34.2 L37,26.4 L31,21.1 L39,20.3 Z" fill="#FBBF24" />
+  <rect width="64" height="64" rx="16" fill="#2563EB" />
+  <rect x="16" y="32" width="10" height="16" rx="3" fill="#FBBF24" />
+  <rect x="27" y="22" width="10" height="26" rx="3" fill="#FBBF24" />
+  <rect x="38" y="12" width="10" height="36" rx="3" fill="#FBBF24" />
 </svg>
