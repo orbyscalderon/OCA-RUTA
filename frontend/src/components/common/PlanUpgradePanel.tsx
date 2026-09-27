@@ -12,6 +12,7 @@ import { planesApi, type Plan } from '@/api/planes.api';
 import { GooglePayButton } from '@/components/common/GooglePayButton';
 import { StripeCardPayButton } from '@/components/common/StripeCardPayButton';
 import { useAuth } from '@/hooks/useAuth';
+import { mensajeError } from '@/utils/errores';
 import { clsx } from 'clsx';
 import iconoBasico from '@/assets/planes/basico.svg';
 import iconoGrowth from '@/assets/planes/growth.svg';
@@ -115,7 +116,7 @@ export function PlanUpgradePanel({ onSuccess }: { onSuccess?: () => void }) {
           {error && <p className="text-center text-sm text-red-600">{error}</p>}
           {suscribirMut.isError && (
             <p className="text-center text-sm text-red-600">
-              {(suscribirMut.error as { message?: string } | null)?.message ?? t('suscripcion.error_pago')}
+              {mensajeError(suscribirMut.error, t('suscripcion.error_pago'))}
             </p>
           )}
 
