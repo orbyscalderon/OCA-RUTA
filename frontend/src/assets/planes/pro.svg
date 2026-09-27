@@ -2,6 +2,6 @@
   <title id="t-pro">Plan Pro</title>
   <rect width="64" height="64" rx="16" fill="#1E3A8A" />
   <circle cx="14" cy="46" r="3.5" fill="#FFFFFF" />
-  <path d="M14,46 C14,30 28,34 35,25" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
-  <path d="M45,13 L48,20.3 L56,21.1 L50,26.4 L51.7,34.2 L45,30.1 L38.3,34.2 L40,26.4 L34,21.1 L42,20.3 Z" fill="#FBBF24" />
+  <path d="M14,46 C14,30 26,34 32,27" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
+  <path d="M42,13 L45,20.3 L53,21.1 L47,26.4 L48.7,34.2 L42,30.1 L35.3,34.2 L37,26.4 L31,21.1 L39,20.3 Z" fill="#FBBF24" />
 </svg>
