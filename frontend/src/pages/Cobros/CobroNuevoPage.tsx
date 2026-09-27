@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, AlertCircle, Printer } from 'lucide-react';
 import { cobrosApi } from '@/api/cobros.api';
 import { cajasApi } from '@/api/cajas.api';
 import { clientesApi } from '@/api/clientes.api';
 import { prestamosApi } from '@/api/prestamos.api';
 import { Badge, estadoPrestamoVariant } from '@/components/common/Badge';
 import { useAuth } from '@/hooks/useAuth';
+import { useTenantSettings } from '@/hooks/useTenantSettings';
 import { formatCurrency } from '@/utils/format';
+import { generarReciboPDF } from '@/utils/recibo.pdf';
 import { Rol } from '@/types';
 import { mensajeError } from '@/utils/errores';
 
@@ -18,6 +20,7 @@ export function CobroNuevoPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { user } = useAuth();
+  const settings = useTenantSettings();
   const esCobrador = user?.rol === Rol.COBRADOR_TENANT;
 
   const [clienteSearch, setClienteSearch] = useState('');
@@ -26,7 +29,7 @@ export function CobroNuevoPage() {
   const [cajaId, setCajaId] = useState('');
   const [monto, setMonto] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [resultado, setResultado] = useState<{ capital: number; interes: number; mora: number } | null>(null);
+  const [resultado, setResultado] = useState<{ capital: number; interes: number; mora: number; transaccionId: string; montoCobrado: number } | null>(null);
 
   // Cajas abiertas: un cobrador solo ve las suyas (/cajas/dia le está vedado,
   // mostraría las de todo el tenant).
@@ -168,9 +171,26 @@ export function CobroNuevoPage() {
         capital: data.distribucion.capital_absorbido,
         interes: data.distribucion.interes_absorbido,
         mora: data.distribucion.mora_absorbida,
+        transaccionId: data.transaccion_id,
+        montoCobrado: parseFloat(monto) || 0,
       });
     },
   });
+
+  const imprimirRecibo = () => {
+    if (!resultado) return;
+    generarReciboPDF({
+      transaccionId: resultado.transaccionId,
+      clienteNombre: clienteSearch || 'Cliente',
+      clienteCedula: '',
+      montoCobrado: resultado.montoCobrado,
+      distribucion: { mora: resultado.mora, interes: resultado.interes, capital: resultado.capital },
+      cobrador: cajasRelevantes[0]?.cobrador ? `${cajasRelevantes[0].cobrador.nombre} ${cajasRelevantes[0].cobrador.apellido}` : '',
+      tenantNombre: settings?.nombre_comercial ?? user?.tenant_nombre ?? 'Prestamista',
+      piePagina: settings?.texto_pie_recibo ?? undefined,
+      simboloMoneda: user?.tenant_simbolo_moneda ?? 'RD$',
+    });
+  };
 
   const errMsg = registrarMut.isError
     ? mensajeError(registrarMut.error, t('cobros.error_registrar'))
@@ -198,7 +218,11 @@ export function CobroNuevoPage() {
               <p className="font-bold text-amber-600">{fmt(resultado.mora)}</p>
             </div>
           </div>
-          <div className="flex gap-3 mt-4">
+          <button onClick={imprimirRecibo} className="btn-secondary w-full justify-center mt-4">
+            <Printer size={15} />
+            {t('cobros.imprimir_recibo')}
+          </button>
+          <div className="flex gap-3 mt-3">
             <button onClick={() => { setResultado(null); setMonto(''); setDescripcion(''); }} className="btn-secondary flex-1 justify-center">
               {t('cobros.registrar_otro')}
             </button>
