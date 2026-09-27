@@ -2,6 +2,8 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AppLayout } from '@/components/Layout/AppLayout';
 import { LandingPage } from '@/pages/Landing/LandingPage';
+import { RutaProtegida } from '@/components/common/RutaProtegida';
+import { Permiso } from '@/utils/permisos';
 
 // Todo lo que no sea la landing pública va con lazy() -- sin esto, alguien
 // que solo visita ocaruta.com para leer sobre el producto descarga también
@@ -69,41 +71,77 @@ export default function App() {
           <Route path="/terminos" element={<LegalPage />} />
           <Route path="/privacidad" element={<LegalPage />} />
 
-          {/* Panel admin — requiere autenticación */}
+          {/* Panel admin — requiere autenticación. Mismo mapeo pantalla→permiso
+              que Sidebar.tsx (ahí se define qué link ve cada quien); acá se
+              hace cumplir de verdad, no solo se esconde el link. */}
           <Route element={<AppLayout />}>
-            <Route path="/panel" element={<DashboardPage />} />
+            <Route path="/panel" element={
+              <RutaProtegida permisos={[Permiso.REPORTES_ADMIN]}><DashboardPage /></RutaProtegida>
+            } />
 
-            <Route path="/clientes" element={<ClientesPage />} />
-            <Route path="/clientes/nuevo" element={<ClienteNuevoPage />} />
+            <Route path="/clientes" element={
+              <RutaProtegida permisos={[Permiso.CLIENTES_VER]}><ClientesPage /></RutaProtegida>
+            } />
+            <Route path="/clientes/nuevo" element={
+              <RutaProtegida permisos={[Permiso.CLIENTES_CREAR]}><ClienteNuevoPage /></RutaProtegida>
+            } />
             <Route path="/clientes/:id" element={<ClienteDetallePage />} />
 
-            <Route path="/prestamos" element={<PrestamosPage />} />
+            <Route path="/prestamos" element={
+              <RutaProtegida permisos={[Permiso.PRESTAMOS_VER]}><PrestamosPage /></RutaProtegida>
+            } />
             <Route path="/prestamos/nueva-solicitud" element={<PrestamoNuevoPage />} />
             <Route path="/prestamos/:id" element={<PrestamoDetallePage />} />
             <Route path="/prestamos/:id/renovar" element={<PrestamoRenovarPage />} />
             <Route path="/prestamos/:id/historial" element={<HistorialPagosPage />} />
 
-            <Route path="/cajas" element={<CajasPage />} />
+            <Route path="/cajas" element={
+              <RutaProtegida permisos={[Permiso.CAJAS_OPERAR, Permiso.CAJAS_SUPERVISAR]}><CajasPage /></RutaProtegida>
+            } />
             <Route path="/cajas/:id/arqueo" element={<CajaArqueoPage />} />
-            <Route path="/cobros/nuevo" element={<CobroNuevoPage />} />
+            <Route path="/cobros/nuevo" element={
+              <RutaProtegida permisos={[Permiso.COBROS_REGISTRAR]}><CobroNuevoPage /></RutaProtegida>
+            } />
 
-            <Route path="/rutas" element={<RutasPage />} />
-            <Route path="/rutas/nueva" element={<RutaNuevaPage />} />
+            <Route path="/rutas" element={
+              <RutaProtegida permisos={[Permiso.RUTAS_GESTIONAR]}><RutasPage /></RutaProtegida>
+            } />
+            <Route path="/rutas/nueva" element={
+              <RutaProtegida permisos={[Permiso.RUTAS_GESTIONAR]}><RutaNuevaPage /></RutaProtegida>
+            } />
             <Route path="/rutas/:id" element={<RutaDetallePage />} />
             <Route path="/rutas/:id/mapa" element={<RutaMapaPage />} />
-            <Route path="/mi-ruta" element={<MiRutaPage />} />
+            <Route path="/mi-ruta" element={
+              <RutaProtegida permisos={[Permiso.RUTAS_VER_PROPIA]}><MiRutaPage /></RutaProtegida>
+            } />
 
-            <Route path="/empleados" element={<EmpleadosPage />} />
+            <Route path="/empleados" element={
+              <RutaProtegida permisos={[Permiso.EMPLEADOS_VER]}><EmpleadosPage /></RutaProtegida>
+            } />
 
-            <Route path="/buro" element={<BuroPage />} />
-            <Route path="/buro/consultar" element={<BuroConsultaPage />} />
+            <Route path="/buro" element={
+              <RutaProtegida permisos={[Permiso.BURO_CONSULTAR]}><BuroPage /></RutaProtegida>
+            } />
+            <Route path="/buro/consultar" element={
+              <RutaProtegida permisos={[Permiso.BURO_CONSULTAR]}><BuroConsultaPage /></RutaProtegida>
+            } />
 
-            <Route path="/reportes" element={<ReportesPage />} />
-            <Route path="/cuentas-cobrar" element={<CuentasCobrarPage />} />
+            <Route path="/reportes" element={
+              <RutaProtegida permisos={[Permiso.REPORTES_ADMIN]}><ReportesPage /></RutaProtegida>
+            } />
+            <Route path="/cuentas-cobrar" element={
+              <RutaProtegida permisos={[Permiso.REPORTES_AVANZADOS]}><CuentasCobrarPage /></RutaProtegida>
+            } />
 
-            <Route path="/config" element={<ConfigPage />} />
-            <Route path="/config/feriados" element={<FeriadosPage />} />
-            <Route path="/config/backup" element={<BackupPage />} />
+            <Route path="/config" element={
+              <RutaProtegida permisos={[Permiso.TENANT_VER_CONFIG]}><ConfigPage /></RutaProtegida>
+            } />
+            <Route path="/config/feriados" element={
+              <RutaProtegida permisos={[Permiso.TENANT_VER_CONFIG]}><FeriadosPage /></RutaProtegida>
+            } />
+            <Route path="/config/backup" element={
+              <RutaProtegida permisos={[Permiso.REPORTES_ADMIN]}><BackupPage /></RutaProtegida>
+            } />
           </Route>
         </Routes>
       </Suspense>

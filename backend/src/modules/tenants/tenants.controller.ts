@@ -38,8 +38,10 @@ export class TenantsController {
   /* ── Settings ──────────────────────────────────────────────────────────── */
 
   @Get('settings')
-  @RequierePermiso(Permiso.TENANT_VER_CONFIG)
-  @ApiOperation({ summary: 'Obtener configuración white-label del tenant' })
+  @ApiOperation({
+    summary: 'Obtener configuración white-label del tenant',
+    description: 'Sin permiso especial -- cualquier empleado autenticado del tenant la necesita para cosas básicas de UI (logo, símbolo de moneda, reglas de mora, radio de geocerca, etc.), no solo el admin. Editarla sí exige tenant_editar_config.',
+  })
   getSettings(@CurrentUser() user: JwtPayload) {
     return this.service.getSettings(user.tenantId);
   }
