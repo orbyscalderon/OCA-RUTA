@@ -70,6 +70,17 @@ export function BuroPage() {
             ),
           },
           {
+            key: 'activo',
+            header: t('buro.col_estado'),
+            // false explícito -- el activo=true de casi todos no debe
+            // mostrar nada de más, solo se resalta la excepción (inactivado
+            // por el super-admin), que antes no se distinguía en absoluto
+            // de un reporte vigente.
+            render: (r) => r.activo === false
+              ? <Badge label={t('buro.inactivado')} variant="gray" />
+              : null,
+          },
+          {
             key: 'created_at',
             header: t('buro.col_reportado'),
             render: (r) => format(new Date(r.created_at), 'dd/MM/yyyy', { locale: es }),

@@ -496,6 +496,27 @@ export class BuroCreditoService {
     };
   }
 
+  /**
+   * Listado cross-tenant para el panel de super-admin -- a diferencia de
+   * obtenerReportesPropios() (un solo tenant), acá se ve el buró completo
+   * de la plataforma, activos e inactivos, para poder ubicar y (si
+   * corresponde) inactivar un reporte de cualquier tenant.
+   */
+  async listarTodos(page = 1, limit = 50, q?: string) {
+    const qb = this.buroRepo.createQueryBuilder('b').orderBy('b.fecha_reporte', 'DESC').addOrderBy('b.created_at', 'DESC');
+
+    if (q && q.trim()) {
+      qb.andWhere(
+        `(b.cedula ILIKE :q OR b.nombre ILIKE :q OR b.apellido ILIKE :q OR (b.nombre || ' ' || b.apellido) ILIKE :q)`,
+        { q: `%${q.trim()}%` },
+      );
+    }
+
+    const [data, total] = await qb.take(limit).skip((page - 1) * limit).getManyAndCount();
+
+    return { data, total, pagina: page, total_paginas: Math.ceil(total / limit) };
+  }
+
   // ─── ESTADÍSTICAS GENERALES (super_admin) ─────────────────────────────────
 
   async estadisticasGlobales() {

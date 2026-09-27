@@ -299,6 +299,28 @@ export function SuperAdminPage() {
     extenderSuscripcionMut.mutate({ id: extenderTenantId!, dias, motivo: extenderMotivo || undefined });
   };
 
+  // ─── Buró de crédito (cross-tenant) ──────────────────────────────────────
+  const [buroQ, setBuroQ] = useState('');
+  const [inactivarReporte, setInactivarReporte] = useState<{ id: string; nombre: string } | null>(null);
+  const [inactivarMotivo, setInactivarMotivo] = useState('');
+
+  const { data: buroData, isLoading: cargandoBuro } = useQuery({
+    queryKey: ['sa-buro', buroQ],
+    queryFn: () => superApi.get('/super-admin/buro', { params: { q: buroQ || undefined, limit: 100 } }).then(unwrap),
+    enabled: authed,
+  });
+  const reportesBuro: any[] = buroData?.data ?? [];
+
+  const inactivarBuroMut = useMutation({
+    mutationFn: () =>
+      superApi.post('/super-admin/buro/inactivar', { reporte_id: inactivarReporte!.id, motivo: inactivarMotivo }).then(unwrap),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['sa-buro'] });
+      setInactivarReporte(null);
+      setInactivarMotivo('');
+    },
+  });
+
   if (!authed) {
     return <SuperAdminLogin onSuccess={() => setAuthed(true)} />;
   }
@@ -656,7 +678,124 @@ export function SuperAdminPage() {
           </table>
         </div>
 
+        {/* Buró de crédito (cross-tenant) */}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-800 flex items-center justify-between gap-3 flex-wrap">
+            <h2 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+              <AlertTriangle size={15} className="text-amber-400" />
+              {t('superadmin.buro_titulo')}
+            </h2>
+            <input
+              value={buroQ}
+              onChange={(e) => setBuroQ(e.target.value)}
+              placeholder={t('superadmin.buro_buscar_placeholder')}
+              className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 w-64"
+            />
+          </div>
+
+          <table className="w-full text-sm">
+            <thead className="bg-gray-800/60">
+              <tr>
+                {[
+                  t('superadmin.buro_col_cedula'), t('superadmin.buro_col_cliente'), t('superadmin.buro_col_tenant'),
+                  t('superadmin.buro_col_riesgo'), t('superadmin.buro_col_deuda'), t('superadmin.buro_col_saldada'),
+                  t('superadmin.buro_col_estado'), t('superadmin.buro_col_reportado'), t('superadmin.col_acciones'),
+                ].map(h => (
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-800">
+              {cargandoBuro ? (
+                <tr><td colSpan={9} className="px-4 py-6 text-center text-xs text-gray-500">{t('superadmin.cargando')}</td></tr>
+              ) : reportesBuro.length === 0 ? (
+                <tr><td colSpan={9} className="px-4 py-6 text-center text-xs text-gray-500">{t('superadmin.buro_sin_resultados')}</td></tr>
+              ) : reportesBuro.map((r) => (
+                <tr key={r.id} className={`hover:bg-gray-800/40 transition-colors ${!r.activo ? 'opacity-40' : ''}`}>
+                  <td className="px-4 py-3 text-gray-300 font-mono text-xs">{r.cedula}</td>
+                  <td className="px-4 py-3 text-gray-200">{r.nombre} {r.apellido}</td>
+                  <td className="px-4 py-3 text-gray-400 text-xs">{r.tenant_nombre}</td>
+                  <td className="px-4 py-3 text-xs">
+                    <span className={
+                      r.nivel_riesgo === 'CriticoNoPrestable' ? 'text-red-400' :
+                      r.nivel_riesgo === 'Alto' ? 'text-orange-400' :
+                      r.nivel_riesgo === 'Medio' ? 'text-amber-400' : 'text-emerald-400'
+                    }>{r.nivel_riesgo}</span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-300 text-xs">
+                    {r.moneda ?? 'DOP'} {Number(r.saldo_impagado ?? 0).toLocaleString('es-DO', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="px-4 py-3">
+                    {r.deuda_saldada ? (
+                      <span className="text-xs text-emerald-400">{t('superadmin.buro_saldada_si')}</span>
+                    ) : (
+                      <span className="text-xs text-red-400">{t('superadmin.buro_saldada_no')}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {r.activo ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-emerald-400"><CheckCircle size={11} /> {t('superadmin.activo')}</span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs text-gray-500"><XCircle size={11} /> {t('superadmin.buro_inactivado')}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-500">
+                    {r.fecha_reporte ? new Date(`${r.fecha_reporte}T00:00:00`).toLocaleDateString('es-DO') : '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    {r.activo && (
+                      <button
+                        onClick={() => { setInactivarReporte({ id: r.id, nombre: `${r.nombre} ${r.apellido}` }); setInactivarMotivo(''); }}
+                        className="rounded-lg bg-red-900/40 text-red-400 hover:bg-red-900/60 px-3 py-1 text-xs font-semibold"
+                      >
+                        {t('superadmin.buro_inactivar')}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
       </div>
+
+      {/* Modal: inactivar reporte de buró */}
+      {inactivarReporte && (
+        <ModalOverlay>
+          <div className="w-full max-w-sm rounded-2xl bg-gray-900 border border-gray-800 shadow-2xl p-6 space-y-4 animate-fade-in">
+            <h2 className="text-lg font-bold text-white">{t('superadmin.buro_inactivar')}</h2>
+            <p className="text-sm text-gray-400">
+              {t('superadmin.buro_inactivar_confirmar', { nombre: inactivarReporte.nombre })}
+            </p>
+            <textarea
+              value={inactivarMotivo}
+              onChange={(e) => setInactivarMotivo(e.target.value)}
+              placeholder={t('superadmin.buro_motivo_placeholder')}
+              rows={3}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            {inactivarBuroMut.isError && (
+              <p className="text-xs text-red-400">{mensajeError(inactivarBuroMut.error, t('superadmin.buro_error_inactivar'))}</p>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => inactivarBuroMut.mutate()}
+                disabled={!inactivarMotivo.trim() || inactivarBuroMut.isPending}
+                className="flex-1 justify-center flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+              >
+                {inactivarBuroMut.isPending ? t('superadmin.buro_inactivando') : t('superadmin.buro_inactivar')}
+              </button>
+              <button
+                onClick={() => setInactivarReporte(null)}
+                className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800"
+              >
+                {t('common.cancelar')}
+              </button>
+            </div>
+          </div>
+        </ModalOverlay>
+      )}
 
       {/* Modal: confirmar cobro manual de vencidas */}
       {showCobrarConfirm && (

@@ -116,6 +116,17 @@ export class SuperAdminController {
     return this.svc.mrrHistorico();
   }
 
+  /** Listado cross-tenant del buró, para ubicar un reporte antes de inactivarlo */
+  @Get('buro')
+  @ApiOperation({ summary: 'Listar reportes de buró de crédito de todos los tenants' })
+  listarBuro(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('q') q?: string,
+  ) {
+    return this.buroSvc.listarTodos(page ? parseInt(page, 10) : 1, limit ? parseInt(limit, 10) : 50, q);
+  }
+
   /** Inactivar reporte de buró por error o resolución legal — acción cross-tenant, solo plataforma */
   @Post('buro/inactivar')
   @HttpCode(HttpStatus.NO_CONTENT)
