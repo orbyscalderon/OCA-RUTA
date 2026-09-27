@@ -29,13 +29,19 @@ export function CajasPage() {
 
   const puedeAsignarCajas = user?.permisos?.includes('cajas_supervisar') ?? false;
 
+  // GET /cajas/dia exige cajas_supervisar (ve la tabla de TODO el tenant) --
+  // un cobrador con solo cajas_operar (sin supervisar) nunca debería pedir
+  // eso, le da 403. Para él esta pantalla es "mi caja": solo la(s) suya(s)
+  // activa(s), vía /cajas/activa.
+  //
   // El backend siempre suma las cajas todavía Abiertas sin importar su
   // fecha (una caja no se cierra hasta que el cobrador cuadra, puede seguir
   // vigente días después de abrirse) -- este filtro solo decide qué día
-  // revisar para las que ya están cerradas.
+  // revisar para las que ya están cerradas (irrelevante en la vista "mi
+  // caja", que no pagina por fecha).
   const { data: cajas, isLoading } = useQuery({
-    queryKey: ['cajas-hoy', fechaFiltro],
-    queryFn: () => cajasApi.listarDelDia(fechaFiltro),
+    queryKey: ['cajas-hoy', puedeAsignarCajas, fechaFiltro],
+    queryFn: () => (puedeAsignarCajas ? cajasApi.listarDelDia(fechaFiltro) : cajasApi.misCajasActivas()),
     refetchInterval: 30_000,
   });
 
@@ -99,19 +105,25 @@ export function CajasPage() {
     <div className="p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('cajas.titulo')}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {puedeAsignarCajas ? t('cajas.titulo') : t('cajas.titulo_propia')}
+          </h1>
           <p className="text-sm text-gray-500">
-            {format(new Date(`${fechaFiltro}T00:00:00`), "EEEE d 'de' MMMM yyyy", { locale: es })}
+            {puedeAsignarCajas
+              ? format(new Date(`${fechaFiltro}T00:00:00`), "EEEE d 'de' MMMM yyyy", { locale: es })
+              : t('cajas.subtitulo_propia')}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <input
-            type="date"
-            value={fechaFiltro}
-            onChange={(e) => setFechaFiltro(e.target.value)}
-            title={t('cajas.filtrar_por_fecha_hint')}
-            className="input-field w-auto text-sm"
-          />
+          {puedeAsignarCajas && (
+            <input
+              type="date"
+              value={fechaFiltro}
+              onChange={(e) => setFechaFiltro(e.target.value)}
+              title={t('cajas.filtrar_por_fecha_hint')}
+              className="input-field w-auto text-sm"
+            />
+          )}
           <Link to="/cobros/nuevo" className="btn-secondary flex items-center gap-1.5">
             <PiggyBank size={15} />
             {t('cajas.registrar_cobro')}
@@ -217,7 +229,7 @@ export function CajasPage() {
         data={cajas ?? []}
         keyField="id"
         loading={isLoading}
-        emptyMessage={t('cajas.sin_cajas_hoy')}
+        emptyMessage={puedeAsignarCajas ? t('cajas.sin_cajas_hoy') : t('cajas.sin_caja_propia')}
       />
 
       {/* Modal Abrir caja */}

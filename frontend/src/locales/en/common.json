@@ -706,6 +706,9 @@
   },
   "cajas": {
     "titulo": "Today's Cash Registers",
+    "titulo_propia": "My Cash Register",
+    "subtitulo_propia": "Your active cash register -- record expenses and close it from here",
+    "sin_caja_propia": "You don't have a cash register open right now. Your admin assigns it when the day starts.",
     "registrar_cobro": "Record payment",
     "abrir_caja": "Open cash register",
     "todas_rutas_con_caja": "You already have a cash register open today on every route",

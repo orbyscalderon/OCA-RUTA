@@ -706,6 +706,9 @@
   },
   "cajas": {
     "titulo": "Cajas del día",
+    "titulo_propia": "Mi caja",
+    "subtitulo_propia": "Tu caja activa -- registrá gastos y cerrala desde acá",
+    "sin_caja_propia": "No tenés ninguna caja abierta ahora mismo. Tu administrador te la asigna al empezar el día.",
     "registrar_cobro": "Registrar cobro",
     "abrir_caja": "Abrir caja",
     "todas_rutas_con_caja": "Ya tienes una caja hoy en todas las rutas",
