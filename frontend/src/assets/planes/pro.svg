@@ -1,13 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t-pro">
   <title id="t-pro">Plan Pro</title>
-  <defs>
-    <linearGradient id="g-pro" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#1D4ED8" />
-      <stop offset="100%" stop-color="#F59E0B" />
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="16" fill="url(#g-pro)" />
+  <rect width="64" height="64" rx="16" fill="#1E3A8A" />
   <circle cx="14" cy="46" r="3.5" fill="#FFFFFF" />
-  <path d="M14,46 C14,30 30,34 34,24" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
-  <path d="M46,14 L48.6,19.3 L54.5,20.2 L50.2,24.3 L51.3,30.2 L46,27.4 L40.7,30.2 L41.8,24.3 L37.5,20.2 L43.4,19.3 Z" fill="#FFFFFF" />
+  <path d="M14,46 C14,30 28,34 35,25" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
+  <path d="M45,13 L48,20.3 L56,21.1 L50,26.4 L51.7,34.2 L45,30.1 L38.3,34.2 L40,26.4 L34,21.1 L42,20.3 Z" fill="#FBBF24" />
 </svg>
