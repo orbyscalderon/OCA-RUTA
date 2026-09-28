@@ -171,6 +171,20 @@ export function LandingPage() {
     setTimeout(() => document.getElementById('registro')?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
+  // /registro existe para poder usar una URL de destino limpia en anuncios
+  // (Google/Meta Ads) en vez de "/#registro" -- pero un link directo a esa
+  // ancla nunca mostraba nada: la sección #registro está oculta
+  // (`!showForm && 'hidden'`) hasta que alguien hace clic en una tarjeta de
+  // plan, cosa que un visitante que recién aterriza no ha hecho. Pro es el
+  // plan que la propia página ya marca como "Recomendado" (isPro más abajo),
+  // así que es el default más consistente en vez de uno arbitrario.
+  useEffect(() => {
+    if (location.pathname === '/registro' && !showForm && planes.some((p) => p.id === 'pro')) {
+      seleccionarPlan('pro');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, planes, showForm]);
+
   const precioDisplay = (plan: Plan) =>
     anual ? Number(plan.precio_anual_usd) : Number(plan.precio_mensual_usd);
 

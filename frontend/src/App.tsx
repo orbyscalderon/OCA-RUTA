@@ -69,6 +69,10 @@ export default function App() {
               Es la única forma real de que Google indexe una versión en
               inglés de esta SPA sin invertir en SSR/prerender completo. */}
           <Route path="/en" element={<LandingPage />} />
+          {/* /registro: misma landing, pero auto-abre el formulario con el
+              plan Pro preseleccionado (ver LandingPage.tsx) -- URL limpia
+              para usar como destino de anuncios en vez de "/#registro". */}
+          <Route path="/registro" element={<LandingPage />} />
           <Route path="/calculadora-de-prestamos" element={<CalculadoraPage />} />
           <Route path="/blog" element={<BlogIndexPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />

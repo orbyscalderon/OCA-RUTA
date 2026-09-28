@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /
 Allow: /$
 Allow: /en$
+Allow: /registro$
 Allow: /legal$
 Allow: /calculadora-de-prestamos$
 Allow: /blog$
