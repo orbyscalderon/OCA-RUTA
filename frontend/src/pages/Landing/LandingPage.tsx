@@ -568,7 +568,7 @@ export function LandingPage() {
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────────────── */}
-      <section className="py-16 px-6 bg-gray-50">
+      <section id="faq" className="py-16 px-6 bg-gray-50">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-2">{t('landing.faq_titulo')}</h2>
           <p className="text-gray-500 text-center mb-10">{t('landing.faq_subtitulo')}</p>
