@@ -1,15 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://ocaruta.com/</loc>
     <lastmod>2026-09-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ocaruta.com/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ocaruta.com/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ocaruta.com/" />
+  </url>
+  <url>
+    <loc>https://ocaruta.com/en</loc>
+    <lastmod>2026-09-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ocaruta.com/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ocaruta.com/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ocaruta.com/" />
   </url>
   <url>
     <loc>https://ocaruta.com/legal</loc>
     <lastmod>2026-09-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://ocaruta.com/calculadora-de-prestamos</loc>
+    <lastmod>2026-09-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://ocaruta.com/blog</loc>
+    <lastmod>2026-09-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://ocaruta.com/blog/digitalizar-cobranza-puerta-a-puerta</loc>
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://ocaruta.com/blog/que-es-buro-de-credito-propio</loc>
+    <lastmod>2026-09-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://ocaruta.com/blog/reducir-mora-prestamos-en-ruta</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>

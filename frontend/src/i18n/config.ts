@@ -8,7 +8,7 @@ export type Idioma = (typeof IDIOMAS_SOPORTADOS)[number];
 
 const IDIOMA_STORAGE_KEY = 'oc-credit-idioma';
 
-function idiomaGuardado(): Idioma {
+export function idiomaGuardado(): Idioma {
   try {
     const guardado = localStorage.getItem(IDIOMA_STORAGE_KEY);
     if (guardado && (IDIOMAS_SOPORTADOS as readonly string[]).includes(guardado)) {

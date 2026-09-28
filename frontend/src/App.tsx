@@ -42,6 +42,9 @@ const PortalClientePage = lazy(() => import('@/pages/Portal/PortalClientePage').
 const SuperAdminPage = lazy(() => import('@/pages/SuperAdmin/SuperAdminPage').then((m) => ({ default: m.SuperAdminPage })));
 const SuscripcionVencidaPage = lazy(() => import('@/pages/SuscripcionVencida').then((m) => ({ default: m.SuscripcionVencidaPage })));
 const LegalPage = lazy(() => import('@/pages/Legal').then((m) => ({ default: m.LegalPage })));
+const CalculadoraPage = lazy(() => import('@/pages/Calculadora/CalculadoraPage').then((m) => ({ default: m.CalculadoraPage })));
+const BlogIndexPage = lazy(() => import('@/pages/Blog/BlogIndexPage').then((m) => ({ default: m.BlogIndexPage })));
+const BlogPostPage = lazy(() => import('@/pages/Blog/BlogPostPage').then((m) => ({ default: m.BlogPostPage })));
 
 function PantallaCarga() {
   return (
@@ -61,6 +64,14 @@ export default function App() {
         <Routes>
           {/* Rutas públicas */}
           <Route path="/" element={<LandingPage />} />
+          {/* /en: misma landing, forzada a inglés -- ver LandingPage.tsx
+              (hreflang recíproco + useEffect que cambia i18n según pathname).
+              Es la única forma real de que Google indexe una versión en
+              inglés de esta SPA sin invertir en SSR/prerender completo. */}
+          <Route path="/en" element={<LandingPage />} />
+          <Route path="/calculadora-de-prestamos" element={<CalculadoraPage />} />
+          <Route path="/blog" element={<BlogIndexPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/olvide-password" element={<OlvidePasswordPage />} />
           <Route path="/resetear-password" element={<ResetearPasswordPage />} />

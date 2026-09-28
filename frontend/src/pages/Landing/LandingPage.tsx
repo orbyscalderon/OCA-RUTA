@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,9 +14,19 @@ import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import { StripeCardInput, type StripeCardInputHandle } from '@/components/common/StripeCardInput';
 import { useAuth } from '@/hooks/useAuth';
 import { PAISES } from '@/utils/paises';
+import { idiomaGuardado } from '@/i18n/config';
 import { clsx } from 'clsx';
 
 const STRIPE_PUBLISHABLE_KEY_PRESENTE = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+const FAQ_KEYS = [
+  { q: 'landing.faq_p1_q', a: 'landing.faq_p1_a' },
+  { q: 'landing.faq_p2_q', a: 'landing.faq_p2_a' },
+  { q: 'landing.faq_p3_q', a: 'landing.faq_p3_a' },
+  { q: 'landing.faq_p4_q', a: 'landing.faq_p4_a' },
+  { q: 'landing.faq_p5_q', a: 'landing.faq_p5_a' },
+  { q: 'landing.faq_p6_q', a: 'landing.faq_p6_a' },
+];
 
 type FormData = {
   nombre_empresa: string;
@@ -33,8 +43,25 @@ type FormData = {
 
 
 export function LandingPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const esVersionIngles = location.pathname === '/en';
+
+  // /en existe SOLO para que Google pueda indexar una versión en inglés de
+  // la landing (hreflang recíproco abajo) -- no toca el idioma que el
+  // usuario guardó manualmente (localStorage), solo el render de esta
+  // visita. Si el usuario venía de /en y navega a "/", vuelve al idioma que
+  // tenía guardado.
+  useEffect(() => {
+    if (esVersionIngles) {
+      i18n.changeLanguage('en');
+      document.documentElement.lang = 'en';
+    } else {
+      i18n.changeLanguage(idiomaGuardado());
+      document.documentElement.lang = idiomaGuardado();
+    }
+  }, [esVersionIngles, i18n]);
   const { applySession } = useAuth();
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const [planSeleccionado, setPlanSeleccionado] = useState<string | null>(null);
@@ -156,6 +183,21 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <Helmet>
+        {esVersionIngles && (
+          <>
+            <title>OCA Ruta — Loan &amp; Door-to-Door Collection Software</title>
+            <meta
+              name="description"
+              content="Software for lenders and finance businesses: loans, door-to-door collection, and a shared credit bureau in one panel. Offline app for collectors. Free 7-day trial."
+            />
+          </>
+        )}
+        <link rel="canonical" href={esVersionIngles ? 'https://ocaruta.com/en' : 'https://ocaruta.com/'} />
+        <link rel="alternate" hrefLang="es" href="https://ocaruta.com/" />
+        <link rel="alternate" hrefLang="en" href="https://ocaruta.com/en" />
+        <link rel="alternate" hrefLang="x-default" href="https://ocaruta.com/" />
+      </Helmet>
       {precioDesdeUsd !== null && (
         <Helmet>
           <script type="application/ld+json">
@@ -373,6 +415,9 @@ export function LandingPage() {
           <h2 className="text-3xl font-extrabold text-gray-900 mb-2">{t('landing.calcula_titulo')}</h2>
           <p className="text-gray-500 mb-8">{t('landing.calcula_subtitulo')}</p>
           <CalculadoraPrestamo />
+          <Link to="/calculadora-de-prestamos" className="inline-block mt-6 text-sm font-semibold text-brand-600 hover:underline">
+            {t('landing.calcula_ver_completa')} →
+          </Link>
         </div>
       </section>
 
@@ -521,6 +566,38 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* ── FAQ ──────────────────────────────────────────────────── */}
+      <section className="py-16 px-6 bg-gray-50">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-2">{t('landing.faq_titulo')}</h2>
+          <p className="text-gray-500 text-center mb-10">{t('landing.faq_subtitulo')}</p>
+          <div className="space-y-3">
+            {FAQ_KEYS.map(({ q, a }) => (
+              <details key={q} className="group rounded-xl border border-gray-200 bg-white p-5">
+                <summary className="cursor-pointer font-semibold text-gray-900 list-none flex items-center justify-between gap-4">
+                  {t(q)}
+                  <span className="text-gray-400 group-open:rotate-45 transition-transform text-xl leading-none">+</span>
+                </summary>
+                <p className="mt-3 text-sm text-gray-600 leading-relaxed">{t(a)}</p>
+              </details>
+            ))}
+          </div>
+          <Helmet>
+            <script type="application/ld+json">
+              {JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'FAQPage',
+                mainEntity: FAQ_KEYS.map(({ q, a }) => ({
+                  '@type': 'Question',
+                  name: t(q),
+                  acceptedAnswer: { '@type': 'Answer', text: t(a) },
+                })),
+              })}
+            </script>
+          </Helmet>
+        </div>
+      </section>
+
       {/* ── FOOTER ───────────────────────────────────────────────── */}
       <footer className="bg-gray-900 text-gray-400 py-8 px-6 text-center text-xs">
         <p className="font-semibold text-white mb-1">{t('landing.footer_titulo')}</p>
@@ -529,6 +606,10 @@ export function LandingPage() {
           <Link to="/legal#terminos" className="underline hover:text-gray-200">{t('landing.footer_terminos')}</Link>
           {' · '}
           <Link to="/legal#privacidad" className="underline hover:text-gray-200">{t('landing.footer_privacidad')}</Link>
+          {' · '}
+          <Link to="/calculadora-de-prestamos" className="underline hover:text-gray-200">{t('landing.calcula_titulo')}</Link>
+          {' · '}
+          <Link to="/blog" className="underline hover:text-gray-200">Blog</Link>
         </p>
       </footer>
     </div>
