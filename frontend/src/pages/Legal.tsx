@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const HOY = new Date().toLocaleDateString('es-DO', { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -7,6 +8,11 @@ export function LegalPage() {
   const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-white">
+      <Helmet>
+        <title>Términos y Privacidad — OCA Ruta</title>
+        <meta name="description" content="Términos de servicio y política de privacidad de OCA Ruta: qué datos recopilamos, cómo los usamos y cómo solicitar la eliminación de tu cuenta." />
+        <link rel="canonical" href="https://ocaruta.com/legal" />
+      </Helmet>
       <header className="border-b border-gray-100 py-4 px-6">
         <Link to="/" className="text-xl font-extrabold text-brand-600">OCA Ruta</Link>
       </header>

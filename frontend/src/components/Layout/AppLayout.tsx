@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Helmet } from 'react-helmet-async';
 import { Sidebar } from './Sidebar';
 import { authStore } from '@/stores/auth.store';
 import { authApi } from '@/api/auth.api';
@@ -61,6 +62,14 @@ export function AppLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Todo lo que cuelga de AppLayout es el panel autenticado de un
+          tenant -- nunca debe indexarse (son páginas de gestión privadas,
+          no contenido público). El robots.txt ya bloquea estas rutas, pero
+          Googlebot sí ejecuta JS y respeta meta robots inyectado en el
+          render, así que esto es un refuerzo real, no decorativo. */}
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* S2-9: glass-header con backdrop-blur */}

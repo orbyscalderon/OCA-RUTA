@@ -18,19 +18,30 @@ function idiomaGuardado(): Idioma {
   return 'es';
 }
 
+const idiomaInicial = idiomaGuardado();
+
 i18n.use(initReactI18next).init({
   resources: {
     es: { common: es },
     en: { common: en },
   },
-  lng: idiomaGuardado(),
+  lng: idiomaInicial,
   fallbackLng: 'es',
   defaultNS: 'common',
   interpolation: { escapeValue: false },
 });
 
+// idiomaGuardado() puede devolver 'en' en la carga inicial (localStorage de
+// una visita anterior) -- sin esto, <html lang="es"> queda desincronizado
+// del idioma real hasta el primer cambio manual (bug de accesibilidad y
+// señal confusa para crawlers que renderizan JS).
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = idiomaInicial;
+}
+
 export function cambiarIdioma(idioma: Idioma) {
   i18n.changeLanguage(idioma);
+  document.documentElement.lang = idioma;
   try {
     localStorage.setItem(IDIOMA_STORAGE_KEY, idioma);
   } catch { /* privado/bloqueado -- el cambio de idioma sigue aplicando esta sesión */ }

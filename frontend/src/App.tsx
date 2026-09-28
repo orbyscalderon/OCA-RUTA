@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '@/components/Layout/AppLayout';
 import { LandingPage } from '@/pages/Landing/LandingPage';
 import { RutaProtegida } from '@/components/common/RutaProtegida';
@@ -68,8 +68,13 @@ export default function App() {
           <Route path="/super-admin" element={<SuperAdminPage />} />
           <Route path="/suscripcion-vencida" element={<SuscripcionVencidaPage />} />
           <Route path="/legal" element={<LegalPage />} />
-          <Route path="/terminos" element={<LegalPage />} />
-          <Route path="/privacidad" element={<LegalPage />} />
+          {/* /terminos y /privacidad ya no son páginas propias -- eran
+              contenido 100% duplicado de /legal (mismo componente, mismo
+              <title>). El _redirects (edge, 301) es el mecanismo real para
+              SEO; este <Navigate> es solo fallback client-side por si algo
+              llega aquí sin pasar por el edge. */}
+          <Route path="/terminos" element={<Navigate to="/legal#terminos" replace />} />
+          <Route path="/privacidad" element={<Navigate to="/legal#privacidad" replace />} />
 
           {/* Panel admin — requiere autenticación. Mismo mapeo pantalla→permiso
               que Sidebar.tsx (ahí se define qué link ve cada quien); acá se

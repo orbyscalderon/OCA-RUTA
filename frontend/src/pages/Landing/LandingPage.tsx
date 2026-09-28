@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Check, X, ArrowRight, Shield, MapPin, Smartphone, Zap } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { GoogleLogin } from '@react-oauth/google';
 import { planesApi, type Plan, type RegistrarTenantDto } from '@/api/planes.api';
 import { CalculadoraPrestamo } from '@/components/common/CalculadoraPrestamo';
@@ -146,8 +147,28 @@ export function LandingPage() {
   const precioDisplay = (plan: Plan) =>
     anual ? Number(plan.precio_anual_usd) : Number(plan.precio_mensual_usd);
 
+  // Precio real desde la API para el JSON-LD -- antes estaba hardcodeado
+  // ("20") directo en index.html, y se habría desincronizado en silencio
+  // apenas cambiara un precio en el backend.
+  const precioDesdeUsd = planes.length
+    ? Math.min(...planes.map((p) => Number(p.precio_mensual_usd)))
+    : null;
+
   return (
     <div className="min-h-screen bg-white">
+      {precioDesdeUsd !== null && (
+        <Helmet>
+          <script type="application/ld+json">
+            {JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Offer',
+              price: String(precioDesdeUsd),
+              priceCurrency: 'USD',
+              url: 'https://ocaruta.com/',
+            })}
+          </script>
+        </Helmet>
+      )}
 
       {/* ── NAV ──────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
