@@ -86,10 +86,11 @@ export function CalculadoraPrestamo({
 
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label htmlFor="calc-capital" className="block text-xs font-medium text-gray-600 mb-1">
             {t('calculadora.capital_label')}
           </label>
           <input
+            id="calc-capital"
             type="number"
             min={500} max={500000} step={500}
             value={capital}
@@ -100,8 +101,9 @@ export function CalculadoraPrestamo({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">{t('calculadora.tasa_label')}</label>
+            <label htmlFor="calc-tasa" className="block text-xs font-medium text-gray-600 mb-1">{t('calculadora.tasa_label')}</label>
             <input
+              id="calc-tasa"
               type="number"
               min={1} max={100} step={0.5}
               value={tasa}
@@ -110,8 +112,9 @@ export function CalculadoraPrestamo({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">{t('calculadora.cuotas_label')}</label>
+            <label htmlFor="calc-cuotas" className="block text-xs font-medium text-gray-600 mb-1">{t('calculadora.cuotas_label')}</label>
             <input
+              id="calc-cuotas"
               type="number"
               min={1} max={365}
               value={cuotas}

@@ -1,0 +1,20 @@
+# OCA Ruta
+
+> Software para financieras y prestamistas que gestionan préstamos y cobranza puerta a puerta: cronograma de cuotas con interés simple, buró de crédito propio compartido entre financieras, app móvil offline para cobradores (GPS, impresión de recibos) y panel web para el dueño del negocio con cajas, reportes y control de cartera en tiempo real. Multi-país por diseño (moneda, idioma y tipo de documento de identidad configurables por empresa), lanzado en República Dominicana.
+
+## Páginas principales
+
+- [Inicio](https://ocaruta.com/): planes, precios y registro (prueba gratis de 7 días)
+- [Calculadora de préstamos](https://ocaruta.com/calculadora-de-prestamos): simula el plan de cuotas de un préstamo con interés simple
+- [Blog](https://ocaruta.com/blog): artículos sobre cobranza en ruta, buró de crédito y reducción de mora
+- [Términos y Privacidad](https://ocaruta.com/legal): condiciones del servicio y política de privacidad
+
+## Artículos del blog
+
+- [Cómo digitalizar la cobranza puerta a puerta sin perder el trato personal](https://ocaruta.com/blog/digitalizar-cobranza-puerta-a-puerta)
+- [Qué es un buró de crédito propio y por qué tu financiera debería tener uno](https://ocaruta.com/blog/que-es-buro-de-credito-propio)
+- [5 formas de reducir la mora en préstamos de cobranza en ruta](https://ocaruta.com/blog/reducir-mora-prestamos-en-ruta)
+
+## Notas
+
+El resto del sitio (`/panel`, `/clientes`, `/prestamos`, `/cajas`, etc.) es la aplicación de gestión privada de cada cliente de OCA Ruta, autenticada y aislada por empresa — no es contenido público ni debe indexarse ni citarse como información general sobre el producto.

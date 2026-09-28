@@ -17,7 +17,7 @@ export function LegalPage() {
         <Link to="/" className="text-xl font-extrabold text-brand-600">OCA Ruta</Link>
       </header>
 
-      <div className="max-w-3xl mx-auto px-6 py-12 text-sm text-gray-600 leading-relaxed">
+      <main className="max-w-3xl mx-auto px-6 py-12 text-sm text-gray-600 leading-relaxed">
         <h1 className="text-3xl font-extrabold text-gray-900 mb-2">{t('legal.titulo')}</h1>
         <p className="text-xs text-gray-400 mb-10">{t('legal.ultima_actualizacion', { fecha: HOY })}</p>
 
@@ -108,7 +108,7 @@ export function LegalPage() {
         </p>
 
         <Link to="/" className="inline-block mt-8 text-brand-600 font-medium text-sm">{t('legal.volver_inicio')}</Link>
-      </div>
+      </main>
     </div>
   );
 }

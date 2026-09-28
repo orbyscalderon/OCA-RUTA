@@ -231,6 +231,7 @@ export function LandingPage() {
         </div>
       </nav>
 
+      <main>
       {/* ── HERO ─────────────────────────────────────────────────── */}
       <section className="bg-gradient-to-br from-brand-600 to-brand-800 text-white py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
@@ -439,15 +440,15 @@ export function LandingPage() {
             className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm space-y-4"
           >
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.nombre_empresa')}</label>
-              <input {...register('nombre_empresa')} placeholder={t('landing.nombre_empresa_placeholder')}
+              <label htmlFor="nombre_empresa" className="block text-sm font-medium text-gray-700 mb-1">{t('landing.nombre_empresa')}</label>
+              <input id="nombre_empresa" {...register('nombre_empresa')} placeholder={t('landing.nombre_empresa_placeholder')}
                 className="input-field" />
               {errors.nombre_empresa && <p className="mt-1 text-xs text-red-500">{errors.nombre_empresa.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.pais')}</label>
-              <select {...register('pais')} className="input-field">
+              <label htmlFor="pais" className="block text-sm font-medium text-gray-700 mb-1">{t('landing.pais')}</label>
+              <select id="pais" {...register('pais')} className="input-field">
                 {PAISES.map((p) => (
                   <option key={p.codigo} value={p.codigo}>{p.nombre}</option>
                 ))}
@@ -493,34 +494,34 @@ export function LandingPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.nombre')}</label>
-                <input {...register('nombre_admin')} placeholder={t('landing.nombre_placeholder')}
+                <label htmlFor="nombre_admin" className="block text-sm font-medium text-gray-700 mb-1">{t('landing.nombre')}</label>
+                <input id="nombre_admin" {...register('nombre_admin')} placeholder={t('landing.nombre_placeholder')}
                   className="input-field" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.apellido')}</label>
-                <input {...register('apellido_admin')} placeholder={t('landing.apellido_placeholder')}
+                <label htmlFor="apellido_admin" className="block text-sm font-medium text-gray-700 mb-1">{t('landing.apellido')}</label>
+                <input id="apellido_admin" {...register('apellido_admin')} placeholder={t('landing.apellido_placeholder')}
                   className="input-field" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.email_usuario')}</label>
-              <input {...register('email_admin')} type="email" placeholder={t('landing.email_placeholder')}
+              <label htmlFor="email_admin" className="block text-sm font-medium text-gray-700 mb-1">{t('landing.email_usuario')}</label>
+              <input id="email_admin" {...register('email_admin')} type="email" placeholder={t('landing.email_placeholder')}
                 className="input-field" />
               {errors.email_admin && <p className="mt-1 text-xs text-red-500">{errors.email_admin.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.contrasena')}</label>
-              <input {...register('password')} type="password" placeholder={t('landing.contrasena_placeholder')}
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">{t('landing.contrasena')}</label>
+              <input id="password" {...register('password')} type="password" placeholder={t('landing.contrasena_placeholder')}
                 className="input-field" />
               {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('landing.telefono_opcional')}</label>
-              <input {...register('telefono')} placeholder={t('landing.telefono_placeholder')}
+              <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-1">{t('landing.telefono_opcional')}</label>
+              <input id="telefono" {...register('telefono')} placeholder={t('landing.telefono_placeholder')}
                 className="input-field" />
             </div>
 
@@ -597,6 +598,7 @@ export function LandingPage() {
           </Helmet>
         </div>
       </section>
+      </main>
 
       {/* ── FOOTER ───────────────────────────────────────────────── */}
       <footer className="bg-gray-900 text-gray-400 py-8 px-6 text-center text-xs">

@@ -45,6 +45,7 @@ export function BlogPostPage() {
         </div>
       </nav>
 
+      <main>
       <article className="max-w-2xl mx-auto px-6 py-14">
         <Link to="/blog" className="text-sm text-gray-400 hover:text-gray-600">← Blog</Link>
         <p className="text-xs text-gray-400 mt-4 mb-1">
@@ -71,6 +72,7 @@ export function BlogPostPage() {
           <Link to="/#registro" className="btn-primary inline-flex">Empezar gratis</Link>
         </div>
       </article>
+      </main>
     </div>
   );
 }

@@ -23,7 +23,7 @@ export function CalculadoraPage() {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-6 py-14 text-center">
+      <main className="max-w-2xl mx-auto px-6 py-14 text-center">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
           {t('landing.calculadora_pagina_titulo')}
         </h1>
@@ -36,7 +36,7 @@ export function CalculadoraPage() {
           <Link to="/" className="text-brand-600 font-medium hover:underline">OCA Ruta</Link>
           {' — '}{t('landing.footer_titulo')}
         </p>
-      </div>
+      </main>
     </div>
   );
 }

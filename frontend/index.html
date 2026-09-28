@@ -11,7 +11,15 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    <!-- Carga async (no bloquea el render): pide el CSS con prioridad baja
+         vía preload y recién lo activa como stylesheet cuando llega. El
+         texto usa la fuente del sistema hasta entonces (font-display:swap
+         en la URL ya cubre el cambio sin flash de contenido invisible). -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    </noscript>
 
     <title>OCA Ruta — Software de Préstamos y Cobranza en Ruta</title>
     <meta name="description" content="Software para financieras y prestamistas: préstamos, cobranza en ruta y buró de crédito propio en un panel. App offline para cobradores. Prueba gratis 7 días." />

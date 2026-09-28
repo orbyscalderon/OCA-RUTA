@@ -25,7 +25,7 @@ export function BlogIndexPage() {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-6 py-14">
+      <main className="max-w-2xl mx-auto px-6 py-14">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">Blog</h1>
         <p className="text-gray-500 mb-10">
           Guías prácticas para dueños de financieras y prestamistas que cobran en ruta.
@@ -52,7 +52,7 @@ export function BlogIndexPage() {
           <Link to="/" className="text-brand-600 font-medium hover:underline">OCA Ruta</Link>
           {' — Software de préstamos y cobranza en ruta'}
         </p>
-      </div>
+      </main>
     </div>
   );
 }

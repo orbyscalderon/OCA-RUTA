@@ -6,3 +6,13 @@
   Strict-Transport-Security: max-age=15552000; includeSubDomains
   Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=(self "https://js.stripe.com" "https://pay.google.com")
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://pay.google.com https://accounts.google.com https://js.stripe.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.ocaruta.com https://*.tile.openstreetmap.org https://accounts.google.com https://api.stripe.com https://m.stripe.com https://m.stripe.network https://google.com https://*.google.com https://cloudflareinsights.com; frame-src https://pay.google.com https://accounts.google.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'
+
+# Vite le pone hash al nombre de cada archivo de /assets/ (ej.
+# index-BRhouDi9.js) -- un archivo con ese nombre NUNCA cambia de
+# contenido, así que puede cachearse "para siempre" sin riesgo de servir
+# una versión vieja: un deploy nuevo genera un hash distinto, no
+# sobrescribe el archivo. Antes no había ningún Cache-Control acá, así
+# que el navegador los volvía a pedir en cada visita (Lighthouse lo
+# marcaba como "usar tiempos de vida de caché eficientes").
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
