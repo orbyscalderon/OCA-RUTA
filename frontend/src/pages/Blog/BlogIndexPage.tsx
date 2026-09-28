@@ -21,7 +21,7 @@ export function BlogIndexPage() {
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="text-xl font-extrabold text-brand-600">OCA Ruta</Link>
-          <Link to="/#registro" className="btn-primary text-sm">Probar gratis 7 días</Link>
+          <Link to="/registro" className="btn-primary text-sm">Probar gratis 7 días</Link>
         </div>
       </nav>
 

@@ -41,7 +41,7 @@ export function BlogPostPage() {
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="text-xl font-extrabold text-brand-600">OCA Ruta</Link>
-          <Link to="/#registro" className="btn-primary text-sm">Probar gratis 7 días</Link>
+          <Link to="/registro" className="btn-primary text-sm">Probar gratis 7 días</Link>
         </div>
       </nav>
 
@@ -69,7 +69,7 @@ export function BlogPostPage() {
         <div className="mt-14 rounded-2xl border border-brand-100 bg-brand-50 p-6 text-center">
           <p className="font-bold text-gray-900 mb-2">¿Listo para dejar la libreta y el WhatsApp?</p>
           <p className="text-sm text-gray-600 mb-4">Prueba OCA Ruta gratis 7 días, sin tarjeta requerida hasta que decidas seguir.</p>
-          <Link to="/#registro" className="btn-primary inline-flex">Empezar gratis</Link>
+          <Link to="/registro" className="btn-primary inline-flex">Empezar gratis</Link>
         </div>
       </article>
       </main>
