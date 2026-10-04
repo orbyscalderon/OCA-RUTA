@@ -19,6 +19,30 @@ import { clsx } from 'clsx';
 
 const STRIPE_PUBLISHABLE_KEY_PRESENTE = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
+const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.ocaruta.app';
+
+function GooglePlayBadge({ dark, className }: { dark?: boolean; className?: string }) {
+  const { t } = useTranslation();
+  return (
+    <a
+      href={GOOGLE_PLAY_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={clsx(
+        'inline-flex items-center gap-2.5 rounded-xl px-5 py-3 text-sm font-bold transition-colors',
+        dark ? 'bg-white text-gray-900 hover:bg-gray-100' : 'bg-gray-900 text-white hover:bg-gray-800',
+        className,
+      )}
+    >
+      <Smartphone size={18} />
+      <span className="text-left leading-tight">
+        <span className="block text-[10px] font-medium opacity-70">{t('landing.app_movil_cobradores')}</span>
+        {t('landing.disponible_google_play')}
+      </span>
+    </a>
+  );
+}
+
 const FAQ_KEYS = [
   { q: 'landing.faq_p1_q', a: 'landing.faq_p1_a' },
   { q: 'landing.faq_p2_q', a: 'landing.faq_p2_a' },
@@ -265,6 +289,9 @@ export function LandingPage() {
             <Link to="/login" className="rounded-lg border border-white/40 px-6 py-3 text-sm font-medium hover:bg-white/10">
               {t('landing.nav_iniciar_sesion')}
             </Link>
+          </div>
+          <div className="mt-6 flex justify-center">
+            <GooglePlayBadge dark />
           </div>
           <p className="mt-4 text-xs text-blue-200">
             {t('common.copyright')}
@@ -618,7 +645,10 @@ export function LandingPage() {
       <footer className="bg-gray-900 text-gray-400 py-8 px-6 text-center text-xs">
         <p className="font-semibold text-white mb-1">{t('landing.footer_titulo')}</p>
         <p>{t('common.copyright')}</p>
-        <p className="mt-3">
+        <div className="mt-4 flex justify-center">
+          <GooglePlayBadge />
+        </div>
+        <p className="mt-4">
           <Link to="/legal#terminos" className="underline hover:text-gray-200">{t('landing.footer_terminos')}</Link>
           {' · '}
           <Link to="/legal#privacidad" className="underline hover:text-gray-200">{t('landing.footer_privacidad')}</Link>
