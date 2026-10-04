@@ -214,6 +214,30 @@ abstract class AppLocalizations {
   /// **'Registrar mi negocio'**
   String get registrarMiNegocio;
 
+  /// No description provided for @registroNegocioSoloWebTitulo.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea tu cuenta en ocaruta.com'**
+  String get registroNegocioSoloWebTitulo;
+
+  /// No description provided for @registroNegocioSoloWebTexto.
+  ///
+  /// In es, this message translates to:
+  /// **'Para empezar tu prueba gratis de 7 días necesitamos validar una tarjeta (no se cobra nada hasta que termine la prueba). Ese paso solo está disponible en el navegador, no en la app.'**
+  String get registroNegocioSoloWebTexto;
+
+  /// No description provided for @abrirOcaRutaCom.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir ocaruta.com'**
+  String get abrirOcaRutaCom;
+
+  /// No description provided for @yaTengoCuentaIniciarSesion.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Ya tienes cuenta? Inicia sesión'**
+  String get yaTengoCuentaIniciarSesion;
+
   /// No description provided for @continuarConGoogle.
   ///
   /// In es, this message translates to:

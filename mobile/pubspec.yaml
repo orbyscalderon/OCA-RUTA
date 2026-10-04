@@ -1,7 +1,7 @@
 name: oc_credit_mobile
 description: OCA Ruta - App de cobros para cobradores en ruta
 publish_to: 'none'
-version: 1.0.0+12
+version: 1.0.0+13
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -66,6 +66,13 @@ dependencies:
   # por la política de Google para compras de suscripción hechas en apps
   # distribuidas por Play Store.
   in_app_purchase: ^3.2.0
+
+  # Abre ocaruta.com en el navegador -- el registro de cuenta NUEVA con
+  # prueba gratis exige validar una tarjeta (Stripe), que solo existe en el
+  # panel web. En la app no se puede usar Stripe directo (política de Play
+  # exige Play Billing para compras digitales), así que el registro de
+  # negocio nuevo se completa siempre en el navegador, nunca en la app.
+  url_launcher: ^6.3.1
 
   # Gráficos (Reportes: aging, ingresos mensuales)
   fl_chart: ^0.69.0

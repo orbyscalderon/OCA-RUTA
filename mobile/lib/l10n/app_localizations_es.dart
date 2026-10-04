@@ -72,6 +72,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get registrarMiNegocio => 'Registrar mi negocio';
 
   @override
+  String get registroNegocioSoloWebTitulo => 'Crea tu cuenta en ocaruta.com';
+
+  @override
+  String get registroNegocioSoloWebTexto =>
+      'Para empezar tu prueba gratis de 7 días necesitamos validar una tarjeta (no se cobra nada hasta que termine la prueba). Ese paso solo está disponible en el navegador, no en la app.';
+
+  @override
+  String get abrirOcaRutaCom => 'Abrir ocaruta.com';
+
+  @override
+  String get yaTengoCuentaIniciarSesion => '¿Ya tienes cuenta? Inicia sesión';
+
+  @override
   String get continuarConGoogle => 'Continuar con Google';
 
   @override
